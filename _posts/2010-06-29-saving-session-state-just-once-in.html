@@ -1,0 +1,13 @@
+---
+layout: post
+title: Saving session state just once in Firefox
+date: '2010-06-29T07:43:00.000-07:00'
+author: Jason R. Coombs
+tags:
+- None
+modified_time: '2011-07-17T13:45:34.466-07:00'
+blogger_id: tag:blogger.com,1999:blog-3597351713969111277.post-2566369208766424411
+blogger_orig_url: http://blog.jaraco.com/2010/06/saving-session-state-just-once-in.html
+---
+
+Since Firefox 2 or so, Firefox has had the ability to save the session state (complete with tabs, cookies, and partially-completed forms). This is easily <a href="http://mrgierer.wordpress.com/2006/11/20/firefox2-save-session-state/">enabled through the preferences</a>.<br /><br />However, I&nbsp;wanted the ability to save my session on demand. It turns out Firefox <a href="http://kb.mozillazine.org/Browser.sessionstore.resume_session_once">has a setting for this</a> too, which just saves the session state for the current session (one restart, then revert to default behavior).<br /><br />I&nbsp;wanted to enable this functionality through the interface. I&nbsp;looked for an add-on. I&nbsp;looked for a bookmarklet. I&nbsp;couldn't find what I&nbsp;was looking for. I&nbsp;finally found <a href="http://custombuttons2.com/en-us/forum/buttons/button-requests-coding-assistance/request-save-session-exit-button.html">this config item for an add-on</a> which led me to my final solution. I&nbsp;was able to use their code to create a bookmarklet to remember the session for the next restart. Now if I'm working on anything important that I&nbsp;don't want to lose (by accidentally closing my browser or restarting my system), I&nbsp;hit the bookmark which I&nbsp;call <a href="javascript:Components.classes[%22@mozilla.org/preferences-service;1%22].getService(Components.interfaces.nsIPrefBranch).setBoolPref(%22browser.sessionstore.resume_session_once%22,true);">Remember State for One Restart</a>. Bah- LJ filters the link. The HREF should contain "javascript:Components.classes[%22@mozilla.org/preferences-service;1%22].getService(Components.interfaces.nsIPrefBranch).setBoolPref(%22browser.sessionstore.resume_session_once%22,true);". If you don't know what to make of that, just get the add-on below.<br /><br />Since I&nbsp;wrote the bookmarklet, I&nbsp;also found <a href="https://addons.mozilla.org/en-US/firefox/addon/4199/">Save Session</a>, which appears to do the same in an Add-On. Good luck and happy session saving.

@@ -1,0 +1,16 @@
+---
+layout: post
+title: mathematical permutation calculations
+date: '2009-05-23T06:38:00.000-07:00'
+author: Jason R. Coombs
+tags:
+- python
+- permutations
+- functional programming
+- math
+modified_time: '2011-07-17T13:45:34.468-07:00'
+blogger_id: tag:blogger.com,1999:blog-3597351713969111277.post-1814402768517381984
+blogger_orig_url: http://blog.jaraco.com/2009/05/mathematical-permutation-calculations.html
+---
+
+Today on car talk, they asked the question, given the numbers 2, 3, 4, and 5, and a selection of mathematical operations, which mathematical arrangement yields the number 26.  Rather than try to reverse-engineer the answer intelligently, I wrote a Python program to brute force the answer.  <a href="http://paste.turbogears.org/paste/78139">Here it is for your amusement</a>.<br/><br/><pre><br/>#!python<br/># the question is, what mathematical operation or operations,<br/># each used only once, on the four numbers 2,3,4,5 will result<br/># in the number 26<br/>from __future__ import print_function<br/>import itertools, operator<br/><br/>def apply_funcs(functions):<br/>	"""<br/>	Return a function that will cycle through the functions<br/>	for each set of arguments passed in.<br/>	>>> funcs = apply_funcs([operator.add, operator.sub])<br/>	>>> reduce(funcs, [1,2,3,4]) == 1+2-3+4<br/>	True<br/>	"""<br/>	functions = itertools.cycle(functions)<br/>	return lambda *args: next(functions)(*args)<br/><br/>def calculate_result(numbers, ops):<br/>	return reduce(apply_funcs(ops), numbers)<br/><br/>numbers = map(int,'2345')<br/>ops = [getattr(operator, op) for op in 'add sub mul truediv pow'.split()]<br/>n_ops = len(numbers)-1<br/>candidates = itertools.product(<br/>	itertools.permutations(numbers),<br/>	itertools.permutations(ops, n_ops),<br/>	)<br/>is_target_result = lambda candidate: calculate_result(*candidate) == 26<br/>target_combinations = filter(is_target_result, candidates)<br/>map(print, target_combinations)<br/><br/>"""<br/>((3, 2, 5, 4), (&lt;built-in function truediv>, &lt;built-in function add>, &lt;built-in<br/>function mul>))<br/>((5, 2, 3, 4), (&lt;built-in function pow>, &lt;built-in function sub>, &lt;built-in function add>))<br/>((5, 2, 4, 3), (&lt;built-in function pow>, &lt;built-in function add>, &lt;built-in function sub>))<br/>"""<br/></pre>

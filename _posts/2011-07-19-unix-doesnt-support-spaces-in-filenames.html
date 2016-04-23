@@ -1,0 +1,12 @@
+---
+layout: post
+title: Unix doesn't support spaces in filenames
+date: '2011-07-19T13:34:00.000-07:00'
+author: Jason R. Coombs
+tags: 
+modified_time: '2011-07-19T13:35:25.265-07:00'
+blogger_id: tag:blogger.com,1999:blog-3597351713969111277.post-377081447061647595
+blogger_orig_url: http://blog.jaraco.com/2011/07/unix-doesnt-support-spaces-in-filenames.html
+---
+
+I was creating a job on my Linux-based Jenkins server today, when I encountered an error with a Python virtual environment. It turned out the problem was that the Jenkins job had a name with a space in it, which means the workspace had a name with a space in it, which means the virtualenv had a name with a space in it, which means the scripts created in that virtualenv had a hash-bang with space in it... and bash doesn't support hash-bangs with spaces in the interpreter path.<br /><br />Consider <a href="http://a.libpa.st/7PGcl">this simple example</a>. There appears to be no specification for the hashbang, but after some searching, I did find a page that indicates there is <a href="http://www.in-ulm.de/%7Emascheck/various/shebang/#issues">no supported mechanism</a> for specifying a space in the interpreter name.<br /><br />That's a shame. That limitation then bleeds through to almost every other aspect in Unix programming that it basically means Unix does not support spaces in filenames.

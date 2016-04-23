@@ -1,0 +1,13 @@
+---
+layout: post
+title: ComCast is not an Internet connection
+date: '2009-06-24T04:01:00.000-07:00'
+author: Jason R. Coombs
+tags:
+- broken internet
+modified_time: '2011-07-17T13:45:34.468-07:00'
+blogger_id: tag:blogger.com,1999:blog-3597351713969111277.post-641602929172671500
+blogger_orig_url: http://blog.jaraco.com/2009/06/comcast-is-not-internet-connection.html
+---
+
+Comcast should be prosecuted for false advertising.  They advertise high speed Internet, but what they sell is high-speed web and some other Internet-based content delivery.<br/><br/>Yesterday, my primary Internet connection went down, apparently due to a physical problem with the line.  Even though I pay $85/month for Internet access (for 3Mbit downloads), I only get the same consumer response time to investigate the problem (8 hour window the following day).<br/><br/>Since my main mail server is now hosted here at my residence, I could not afford the 36-hour downtime, so I moved my server over to my backup ComCast service.  I put the server behind a router, set it up as the DMZ host, reconfigured my DNS settings and thought I was done.<br/><br/>Turns out that's not the case.  Because ComCast blocks CIFS, I had to remote to all of the client computers (everybody who uses jaraco.com for their e-mail) and reconfigure the Outlook clients to use RPC over HTTPS.<br/><br/>Then, e-mail was coming in nicely, and the clients could connect.  Still, all was not well.<br/><br/>Turns out outgoing e-mails were being blocked by blocklists, causing the recipient servers to reject delivery outright.  All Comcast addresses are on blocklists because they're considered consumer-grade addresses, and mail should not be delivered from these addresses.  Note that although this problem is created by the industry, it's fully supported and encouraged by Comcast, whose policies explicitly forbid "servers".<br/><br/>So, I took advantage of a sendmail server I had lying around.  I opened up the firewall to port 25, reconfigured the service to bind to all interfaces and not just localhost, and enabled relaying from my mail server.  I then reconfigured my mail server to send all outgoing mail through the relay.  Because that server is hosted at a datacenter somewhere in Florida, e-mail servers allow mail from it.<br/><br/>Still some things don't work, but at least mail is working again (although it's dependent on the relay server).<br/><br/>By the end of the day, I hope to undo all of this and revert to my previous configuration.  What a waste of a day.
