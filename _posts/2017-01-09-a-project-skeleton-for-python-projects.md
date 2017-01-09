@@ -43,9 +43,9 @@ If you have an existing project, you can still incorporate the skeleton by mergi
     $ git rm --cached -r .
     $ git pull gh://jaraco/skeleton
     $ git checkout master
-    $ git merge skeleton
+    $ git merge skeleton --allow-unrelated-histories
 
-Then, resolve any merge conflict.
+The `--allow-unrelated-histories` is necessary because the history from the skeleton was previously unrelated to the existing codebase. Resolve any merge conflicts and commit to the master, and now the project is based on the shared skeleton.
 
 ## Updating
 
