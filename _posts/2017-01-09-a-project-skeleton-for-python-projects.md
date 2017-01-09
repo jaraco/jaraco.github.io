@@ -51,4 +51,6 @@ Then, resolve any merge conflict.
 
 Now, whenever a change is needed or desired for the general technique for packaging, it can be made in the skeleton project and then merged into the skeleton branch of each of the derived projects as needed. As a result, features and best practices for packaging are centrally maintained and readily trickle into a whole suite of packages. This technique lowers the amount of tedious work necessary to create or maintain a project, and coupled with other techniques like continuous integration and deployment, lowers the cost of creating and maintaining refined Python projects to just a few, familiar `git` operations.
 
-No longer is the maintenance of packaging scaffolding a significant impediment to the creation or maintenance of Python projects, allowing them to be created on their own merits.
+Thereafter, the target project can make whatever customizations it deems relevant to the scaffolding. The project may even at some point decide that the divergence is too great to merit renewed merging with the original skeleton. This approach applies maximal guidance while creating minimal constraints.
+
+The end result is that no longer is the maintenance of packaging scaffolding a significant impediment to the creation or maintenance of Python projects, allowing projects to be created with whimsy and on their own merits.
