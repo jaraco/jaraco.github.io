@@ -9,6 +9,8 @@ Early on, I would simply copy/paste files from one repo to another. I'd grab a s
 
 At one point, I found even this copy/paste to be tedious and error prone. I would make an update in one of the projects, but that update wouldn't have any effect on the other projects derived from the same idea.
 
+## Mechanical generation
+
 I set out to write a routine to mechanize the generation of this scaffolding. I implemented it in [jaraco.develop](https://pypi.org/project/jaraco.develop), but intended for it eventually to apply to YouGov projects just as well. The routine ([seen here](https://github.com/jaraco/jaraco.develop/blob/3.0/jaraco/develop/namespace.py#L50-L117)) would generate many of the common assets, injecting the project name and even adjusting for tabs or spaces at the whim of the invocation.
 
 This technique has been [repeated by others](https://pypi.org/project/cookiecutter/) (and probably better) as well. But I found that as I was able to mechanically generate the scaffolding, and new projects would always get the latest and greatest packaging concepts, my growing [portfolio of projects](https://pypi.org/user/jaraco/) would have an ever longer tail of packages missing those improvements.
