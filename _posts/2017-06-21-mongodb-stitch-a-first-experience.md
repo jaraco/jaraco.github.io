@@ -1,6 +1,6 @@
 ---
 layout: post
-title: MongoDB Stitch: A First Experience
+title: MongoDB Stitch, A First Experience
 ---
 
 Yesterday, MongoDB announced their new backend as a service, [MongoDB Stitch](https://www.mongodb.com/cloud/stitch). Eliot Horowitz ran through the service with a blog accepting comments.
