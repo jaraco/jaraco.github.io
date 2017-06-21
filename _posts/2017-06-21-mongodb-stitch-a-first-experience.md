@@ -12,7 +12,7 @@ Here's how you can do the same:
 
 3. Next, create a service. Select the HTTP hook. Even though it only mentions sending HTTP requests, it's also used for incoming HTTP. Give the service the name 'intake'.
 
-   ![HTTP hook button](create-http.png "Create HTTP Service")
+   ![HTTP hook button](../create-http.png "Create HTTP Service")
 
    Consider reviewing the [docs on the HTTP Service](https://docs.mongodb.com/stitch/services/http/).
 
