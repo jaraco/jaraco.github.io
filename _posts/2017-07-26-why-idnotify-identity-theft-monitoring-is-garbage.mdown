@@ -20,7 +20,7 @@ When I view my alerts, they're almost all of the form:
 >
 > The following data was found compromised with your email address.
 >
-> **Email** JA\*\*CO@JARACO.COM **Password**: \*\*\*\*\*\*\*\*
+> **Email** JA\*\*CO@JARACO.COM **Password** \*\*\*\*\*\*\*\*
 
 Can you guess what e-mail address is masked there? ;)  I have near-zero confidence that those 8 asterix characters represent an 8 character password, and zero confidence they would tell me if I asked.
 
