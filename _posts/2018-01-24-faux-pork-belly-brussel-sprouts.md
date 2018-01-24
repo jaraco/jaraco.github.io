@@ -5,9 +5,9 @@ title: Faux Pork Belly Brussel Sprouts
 
 Ingredients
 
-1 bag brussel sprouts
-1/3 lb bacon
-1 Tbsp olive oil
+- 1 bag brussel sprouts
+- 1/3 lb bacon
+- 1 Tbsp olive oil
 
 Preheat the oven to 425ºF.
 
