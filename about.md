@@ -4,12 +4,10 @@ title: About
 permalink: /about/
 ---
 
-Some information about you!
-
 ### More Information
 
-A place to include any other types of information that you'd like to include about yourself.
+[Visit my website](https://www.jaraco.com/) for links to my other work.
 
 ### Contact me
 
-[email@domain.com](mailto:email@domain.com)
+[jaraco@jaraco.com](mailto:jaraco@jaraco.com)
