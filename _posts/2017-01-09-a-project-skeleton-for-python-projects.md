@@ -31,20 +31,12 @@ To use skeleton for a new project, simply pull the skeleton into a new project:
     $ cd my-new-project
     $ git pull gh://jaraco/skeleton
 
-For convenience, track the skeleton in its own branch:
-
-    $ git branch skeleton
-
 Now customize the project to suit your individual project needs.
 
 ## Usage (existing)
 
 If you have an existing project, you can still incorporate the skeleton by merging it into the codebase.
 
-    $ git checkout --orphan skeleton
-    $ git rm --cached -r .
-    $ git pull gh://jaraco/skeleton
-    $ git checkout master
     $ git merge skeleton --allow-unrelated-histories
 
 The `--allow-unrelated-histories` is necessary because the history from the skeleton was previously unrelated to the existing codebase. Resolve any merge conflicts and commit to the master, and now the project is based on the shared skeleton.
