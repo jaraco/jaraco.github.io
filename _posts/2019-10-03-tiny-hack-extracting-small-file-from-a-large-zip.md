@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Tiny Hack: Extracting Small File from a Large Zip File in the Cloud
+title: Tiny Hack—Extracting Small File from a Large Zip File in the Cloud
 tags: english, grammar
 ---
 
