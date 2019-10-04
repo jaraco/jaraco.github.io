@@ -14,7 +14,7 @@ Now I just need an application to open the zip file locally and explore/extract 
 
 Since I'm on macOS, I tried [Fuse](https://osxfuse.github.io/). I installed Fuse and through Homebrew installed [fuse-zip](https://bitbucket.org/agalanin/fuse-zip/wiki/Home). From there, I was able to attempt to mount the file, but when I ran `fuse-zip file.zip /Volumes/file`, it blocked for a very long time, as if it had to read the whole file just to set up the mount :(.
 
-I realized I could download some third-party Zip file explorer, but searching online and in the mac App Store, I found no obvious solution. Then I remembered that Python 3.8 has a new routine to make it easier to traverse zip files like pathlib objects, and since [my shell](https://xon.sh/) is already running under Python 3.8, I just started inspecting the file:
+I realized I could download some third-party Zip file explorer, but searching online and in the mac App Store, I found no obvious reputable solution. Then I remembered that Python 3.8 has a new routine to make it easier to traverse zip files like pathlib objects, and since [my shell](https://xon.sh/) is already running under Python 3.8, I just started inspecting the file:
 
 ```
 $ import zipfile
