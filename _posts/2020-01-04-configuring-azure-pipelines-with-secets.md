@@ -78,4 +78,13 @@ I wasn't able to figure out a way to do this from the CLI.
 
 # Use the Variable
 
-At this point, I'm stuck. I don't know how to enable that variable group in the pipeline.
+The docs explain [how to use a variable](https://docs.microsoft.com/en-us/azure/devops/pipelines/library/variable-groups?view=azure-devops&tabs=yaml#use-a-variable-group).
+
+Then, in the release segment of the Publish job, I add:
+
+```
+env:
+  TWINE_PASSWORD: $(PyPI-token)
+```
+
+And cross my fingers.
