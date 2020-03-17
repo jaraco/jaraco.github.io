@@ -88,3 +88,6 @@ env:
 ```
 
 And cross my fingers.
+
+
+_Edit (2020-03)_: I've since created [this screencapture of the configuration process](https://www.dropbox.com/s/832344knurh92n7/2020-03%20Azure%20Create%20Pipeline%20Steps.mov?dl=0) and I've learned in [Azure/azure-devops-cli-extension#968](https://github.com/Azure/azure-devops-cli-extension/issues/968) that there may be some ways to mechanize this approach.
