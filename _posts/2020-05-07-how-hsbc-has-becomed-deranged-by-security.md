@@ -33,4 +33,4 @@ In any case, the last three digits of the reference number matched the digits fr
 - Even though they required a mobile phone number, I never had to validate through it. Presumably any phone number would have sufficed.
 - Each time a mobile validation was sent (and a confirmation later sent), it came from a different number.
 
-So ultimately, it sounds as if this process is legitimate, but it's no surprise to me if TfL was using this same system to issue refunds why they struggled so much to issue me a refund for months. This process was horrible and sketchy, and I'm glad it's over.
+So ultimately, it sounds as if this process is legitimate, but it's no surprise to me why if TfL was using this same system to issue refunds, they struggled so much to issue me a refund for months. This process was horrible and sketchy, and I'm glad it's over.
