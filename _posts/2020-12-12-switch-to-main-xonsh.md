@@ -7,7 +7,7 @@ I recently noticed that git and Github and others have been transitioning away f
 
 [Xonsh](https://xon.sh/) is my shell of choice, so I set out to write the routine. I quickly came up with the following:
 
-```
+```python
 def retire_master():
     git checkout master
     git pull
@@ -22,7 +22,7 @@ aliases['retire-master'] = retire_master
 
 This routine depended on two existing routines I already had:
 
-```
+```python
 def git_push_new_branch():
     head = $(git rev-parse --abbrev-ref HEAD).rstrip()
     git push --set-upstream origin @(head)
@@ -40,7 +40,7 @@ Unfortunately, I discovered that deleting the default branch has consequences fo
 
 So I added a bit more sophistication to update any outstanding pull requests:
 
-```
+```python
 def move_prs(repo):
     import json
     prs = json.loads($(hub api /repos/@(repo)/pulls?base=master))
@@ -49,9 +49,25 @@ def move_prs(repo):
         hub api -X PATCH /repos/@(repo)/pulls/@(pr_num) -F base=main
 ```
 
-This routine, given a repo path, would query for any pulls targeting the master branch and then update each PR. Then, one small change to the retire function puts it all together:
+This routine, given a repo path, would query for any pulls targeting the master branch and then update each PR.
 
+Some of the projects use Read The Docs, and those docs build stopped working with the new branch name. To update the branch name in RTD, I devised another routine:
+
+```python
+def move_rtd(repo):
+    org, _, project = repo.partition('/')
+    rtd_name = project.replace('.', '').replace('_', '-')
+    rp = pathlib.Path('README.rst')
+    readme = rp.read_text() if rp.is_file() else ''
+    if f'{rtd_name}.readthedocs' not in readme:
+        return
+    auth = 'Token ' + keyring.get_password('https://api.readthedocs.org/', 'token')
+    http patch https://readthedocs.org/api/v3/projects/@(rtd_name)/ Authorization:@(auth) default_branch=main
 ```
+
+Then, one small change to the retire function puts it all together:
+
+```python
 def retire_master():
     git checkout master
     git pull
@@ -59,6 +75,7 @@ def retire_master():
     gpo
     repo = get_repo_url()
     move_prs(repo)
+    move_rtd(repo)
     hub api -X PATCH /repos/@(repo) -F default_branch=main
     git push origin :master
     git branch -d master
