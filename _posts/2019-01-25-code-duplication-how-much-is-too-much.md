@@ -10,7 +10,7 @@ Joining YouGov, I was enticed to the idea, "Why not just copy it? You can refact
 
 Today, I encountered a particularly stark [real-world example](https://github.com/jaraco/configparser/blob/0e8135cd5d6a5de5c5c5e6a80dbbc19d5e314a21/src/backports/configparser/__init__.py#L687-L700). Consider this code:
 
-```
+```python
 if PY2 and isinstance(filenames, bytes):
     # we allow for a little unholy magic for Python 2 so that
     # people not using unicode_literals can still use the library
@@ -35,7 +35,7 @@ Now granted, a good test suite would have had good coverage for all of the diffe
 
 Consider instead:
 
-```
+```python
 # we allow for a little unholy magic for Python 2 so that
 # people not using unicode_literals can still use the library
 # conveniently
