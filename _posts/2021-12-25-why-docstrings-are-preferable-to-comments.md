@@ -124,6 +124,6 @@ FAILED (errors=1)
 
 In this case, Unittest clearly shows both the location of the failed test and the expectation that was missed (first line of the docstring). If that docstring was not present, unittest simply omits that extra detail in the output.
 
-Therefore, it is only in the customized runner of CPython's `python -m test` when running with `-v` that the location of the test is not readily available when the error is reported.
+Therefore, it is only when running with `-v` and using `grep` to filter output that the location of the test is not readily available when the error is reported.
 
 That narrow behavior hardly seems like a good enough justification to create a new, divergent convention to apply comments in an unusual location (below the function signature where a docstring would be instead of above where a comment usually goes) to avoid an undesirable behavior in a test runner, especially when that behavior is configurable.
