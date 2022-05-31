@@ -25,4 +25,10 @@ For example, here's a message that was recently filtered as junk:
 
 It's a message from myself to a mailing list in a response to a message that I'd previously received, a message that was not filtered. I received 90% of the messages on that chain, but \~10% were filtered as spam.
 
+Here's another example, where Microsoft flagged as spam a tracking update from FedEx:
+
+![tracking update from FedEx](/images/bad-spam-filter-2022-05.png)
+
+In this case, Microsoft allowed the two status messages that arrived before and after the indicated spam message but inexplicably marked one of them as spam, even though they came from the same sender about the same subject with almost identical content. Clearly deranged behavior.
+
 I'll continue to update this post with the most egregious failures, but since they've been unsuccessful in improving the system for over two years, I'm not holding out hope.
