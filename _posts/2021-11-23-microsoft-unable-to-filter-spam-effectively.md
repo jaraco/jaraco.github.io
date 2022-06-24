@@ -33,7 +33,7 @@ In this case, Microsoft allowed the two status messages that arrived before and 
 
 This week, Microsoft flagged a message _from myself_, _sent through Exchange_ to a list as spam:
 
-![message from self is spam](/images/Screen Shot 2022-06-23 at 12.16.34)
+![message from self is spam](/images/Screen Shot 2022-06-23 at 12.16.34.png)
 
 And another, where a receipt from a vendor with PDF attachments and specific contact information was sent direct to junk ([headers](https://gist.github.com/3e11f79d99b99b8e6154db039a3f89ac)):
 
