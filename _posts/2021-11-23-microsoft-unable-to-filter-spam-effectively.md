@@ -29,10 +29,14 @@ Here's another example, where Microsoft flagged as spam a tracking update from F
 
 ![tracking update from FedEx](/images/bad-spam-filter-2022-05.png)
 
+In this case, Microsoft allowed the two status messages that arrived before and after the indicated spam message but inexplicably marked one of them as spam, even though they came from the same sender about the same subject with almost identical content. Clearly deranged behavior.
+
 This week, Microsoft flagged a message _from myself_, _sent through Exchange_ to a list as spam:
 
 ![message from self is spam](/images/Screen Shot 2022-06-23 at 12.16.34)
 
-In this case, Microsoft allowed the two status messages that arrived before and after the indicated spam message but inexplicably marked one of them as spam, even though they came from the same sender about the same subject with almost identical content. Clearly deranged behavior.
+And another, where a receipt from a vendor with PDF attachments and specific contact information was sent direct to junk ([headers](https://gist.github.com/3e11f79d99b99b8e6154db039a3f89ac)):
+
+![receipt from vendor](/images/Screen Shot 2022-06-24 at 16.11.25.png)
 
 I'll continue to update this post with the most egregious failures, but since they've been unsuccessful in improving the system for over two years, I'm not holding out hope.
