@@ -39,4 +39,8 @@ And another, where a receipt from a vendor with PDF attachments and specific con
 
 ![receipt from vendor](/images/Screen Shot 2022-06-24 at 16.11.25.png)
 
+Here's one where Microsoft filtered the Zelle confirmation message for a payment that I make regularly. For some reason, while it wasn't spam last week or the past 3 years, today it suddenly is spam. As a result, I got this financial alert seven days after it was sent. It would have been faster to go through the postal service.
+
+![Zelle receipt filtered](/images/Screen Shot 2022-08-08.png)
+
 I'll continue to update this post with the most egregious failures, but since they've been unsuccessful in improving the system for over two years, I'm not holding out hope.
