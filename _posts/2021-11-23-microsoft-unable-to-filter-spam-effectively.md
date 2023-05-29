@@ -43,4 +43,8 @@ Here's one where Microsoft filtered the Zelle confirmation message for a payment
 
 ![Zelle receipt filtered](/images/Screen Shot 2022-08-08.png)
 
-I'll continue to update this post with the most egregious failures, but since they've been unsuccessful in improving the system for over two years, I'm not holding out hope.
+Recently, the regular notices from my insurance company started showing up in the Junk folder.
+
+![State Farm bill](/images/Screen Shot 2023-05.png)
+
+I'll continue to update this post with the most egregious failures, but since they've been unsuccessful in improving the system for years and years, I'm not holding out hope.
