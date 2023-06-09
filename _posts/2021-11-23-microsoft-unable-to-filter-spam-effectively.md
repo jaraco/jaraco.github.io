@@ -47,4 +47,12 @@ Recently, the regular notices from my insurance company started showing up in th
 
 ![State Farm bill](/images/Screen Shot 2023-05.png)
 
+Here's a notice from a medical provider.
+
+![One Medical notice](/images/Screenshot 2023-06-08 at 22.57.08.png)
+
+And an important, _Action Required_ message. C'mon Microsoft. Your software is garbage.
+
+![PSF Voting notice](/images//Screenshot 2023-06-08 at 22.58.51.png)
+
 I'll continue to update this post with the most egregious failures, but since they've been unsuccessful in improving the system for years and years, I'm not holding out hope.
