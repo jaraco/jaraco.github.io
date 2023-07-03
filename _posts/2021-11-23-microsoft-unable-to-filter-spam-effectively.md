@@ -55,4 +55,8 @@ And an important, _Action Required_ message. C'mon Microsoft. Your software is g
 
 ![PSF Voting notice](/images//Screenshot 2023-06-08 at 22.58.51.png)
 
+Today, I got an obvious scam, but Microsoft thought it _wasn't_ junk:
+
+![Obvious docusign scam](/images/Screen Shot 2023-07-03.png)
+
 I'll continue to update this post with the most egregious failures, but since they've been unsuccessful in improving the system for years and years, I'm not holding out hope.
