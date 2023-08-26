@@ -65,4 +65,8 @@ Last week, I ordered food for pickup. I've ordered pickup before. The confirmati
 
 ![Shopify receipt](/images/Screenshot 2023-08-26 at 11.44.33.png)
 
+Maybe I spoke too soon. I encountered another awful experience today. I'd placed an order to Autozone, which relies on e-mail to notify the purchaser when the order is ready for pickup. But both the order confirmation and the fulfillment notices were flagged as spam. Aggrevating the situation, the uncertainty of where the message would arrive meant that I needed to repeatedly flip-flop between Inbox and Junky Inbox to watch for the message coming in. Extra toil and work for Microsoft's incompetence.
+
+![Autozone messages in Junk Email](/images/IMG_0872.PNG)
+
 I'll continue to update this post with the most egregious failures, but since they've been unsuccessful in improving the system for years and years, I'm not holding out hope.
