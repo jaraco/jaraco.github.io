@@ -59,4 +59,10 @@ Today, I got an obvious scam, but Microsoft thought it _wasn't_ junk:
 
 ![Obvious docusign scam](/images/Screen Shot 2023-07-03.png)
 
+_Update_ (2023-08): Over the past few months, the filtering has gotten a bit better. I'm now getting just a handful of false positives per month, instead of dozens. Still, it's incorrectly flagging some obviously valid emails as junk.
+
+Last week, I ordered food for pickup. I've ordered pickup before. The confirmation came from a well-known sender (shopify), and the message indicates that the "sender has not been verified" and directs me to their [phishing guidance](https://support.microsoft.com/en-us/office/phishing-and-suspicious-behaviour-0d882ea5-eedc-4bed-aebc-079ffa1105a3?redirectSourcePath=%252farticle%252f3d44102b-6ce3-4f7c-a359-b623bec82206), implying they think Shopify is Phishing for Shopify. Fail. Is it my responsibility to get the sender verified? Why is this false positive my problem?
+
+![Shopify receipt](/images/Screenshot 2023-08-26 at 11.44.33.png)
+
 I'll continue to update this post with the most egregious failures, but since they've been unsuccessful in improving the system for years and years, I'm not holding out hope.
