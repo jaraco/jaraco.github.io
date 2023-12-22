@@ -69,4 +69,10 @@ Maybe I spoke too soon. I encountered another awful experience today. I'd placed
 
 ![Autozone messages in Junk Email](/images/IMG_0872.PNG)
 
+I continue to regularly find e-mails from reputable providers going to my spam folder. Along with other notices from LastPass, my local salon, Nebula, and others, Microsoft's AI decided that an educational e-mail from Apple is junk:
+
+![Educational e-mail from Apple](/images/Screenshot 2023-12-22 at 09.06.33.png)
+
+At the same time, it's let e-mails through to my Inbox that were sent from `onmicrosoft.com` addresses.
+
 I'll continue to update this post with the most egregious failures, but since they've been unsuccessful in improving the system for years and years, I'm not holding out hope.
