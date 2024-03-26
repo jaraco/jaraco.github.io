@@ -15,6 +15,8 @@ Many of the projects I maintain in open source make heavy use of [doctests](http
 - doctests contribute to code coverage and often are sufficient to capture the full range of supported use-cases.
 - zero config framework; tests can be exercised simply from the standard library without any additional imports.
 - tests can be supplied on non-importable modules (such as scripts).
+- tests can be supplied for functionality where only one file is present (e.g. gist, script, StackOverflow answer).
+- tests will capture lingering "print" statements or other unexpected output, output which is normally ignored by test frameworks ([example](https://github.com/jaraco/jaraco.develop/issues/6)).
 
 Therefore, lines in the docstrings that begin with `>>>` are executed and will fail if the output is not a match for what's written. I acknowledge that this form of test is often discouraged and is suboptimal for many cases (see [Soapbox](https://docs.python.org/3/library/doctest.html#soapbox)). In particular, if doctests have to spend a high percentage of the user's attention to facilitate testing, it's probably better migrated to a unit test. With judicious use of fixtures and aggressive migration to unit tests when appropriate, doctests can be quite valuable and intuitive. That's why all [skeleton](https://github.com/jaraco/skeleton)-based projects [run doctests as a matter of course](https://github.com/jaraco/skeleton/blob/f9e01d2197d18b2b21976bae6e5b7f90b683bc4f/pytest.ini#L3).
 
