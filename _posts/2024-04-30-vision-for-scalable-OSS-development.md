@@ -38,6 +38,7 @@ __name__ == '__main__' and print("hello world")
 
 A sufficiently-knowledgable system could from that repo, infer the following metadata:
 
+```yaml
 Name: world  # inferred from parent directory name or git metadata
 Description: A hello world library  # drawn from GitHub description (if present)
 Version: 0.0.1  # based on tags in the repo
@@ -45,8 +46,9 @@ Author-email: "Jason R. Coombs" <jaraco@jaraco.com>  # inferred from commit hist
 Classifier: Development Status :: 4 - Beta  # based on version
 Classifier: Programming Language :: Python :: 3  # inferred from source
 Classifier: License :: OSI Approved :: MIT License  # default defined in tooling
-Python-Requires: >= 3.8  # defaults to Python lifecycle supported versions
+Python-Requires: ">= 3.8"  # defaults to Python lifecycle supported versions
 Project-Url: Homepage, https://github.com/jaraco/world  # drawn from git origin
+```
 
 The system could additionally provide tooling to build/test/publish/publish docs/etc.. A bit of sophistication in GitHub could enable continuous integration and testing based on best practices, inferred capabilities, and selective project-specific overrides, all without requiring statically-defined boilerplate in each project.
 
