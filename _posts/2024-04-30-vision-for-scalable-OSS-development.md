@@ -36,6 +36,25 @@ __name__ == '__main__' and print("hello world")
  @ git push  # or gh pr create ...
 ```
 
+This new layout has a very shallow tree:
+
+```shell
+ @ tree
+.
+├── .git
+└── hello.py
+```
+
+This new layout, which I'll call the _intrinsic layout_ (compared with the extant "flat" and "src" layouts), omits the redundant "world" root directory, but materializes it in the wheel:
+
+```shell
+ world main @ pipx run --spec openpack zip-listdir dist/world-0.1.dev0+d20240508-py3-none-any.whl
+d world
+d world-0.1.dev0+d20240508.dist-info
+ world main @ pipx run --spec openpack zip-listdir dist/world-0.1.dev0+d20240508-py3-none-any.whl/world
+  hello.py
+```
+
 A sufficiently-knowledgable system could from that repo, infer the following metadata:
 
 ```yaml
@@ -50,7 +69,7 @@ Python-Requires: ">= 3.8"  # defaults to Python lifecycle supported versions
 Project-Url: Homepage, https://github.com/jaraco/world  # drawn from git origin
 ```
 
-The system could additionally provide tooling to build/test/publish/publish docs/etc.. A bit of sophistication in GitHub could enable continuous integration and testing based on best practices, inferred capabilities, and selective project-specific overrides, all without requiring statically-defined boilerplate in each project.
+The system could additionally provide tooling to build/test/publish/publish-docs/etc.. A bit of sophistication in GitHub could enable continuous integration and testing based on best practices, inferred capabilities, and selective project-specific overrides, all without requiring statically-defined boilerplate in each project.
 
 For cases where metadata is legitimately needed, that metadata should be stored _away_ from the primary source. I suggest it should be stored in a path that's indicative of being non-source, something like: `(meta)/`. Such a path would never be importable and would be clearly not source. It avoids perpetuating the abuse of the platform-sensitive "dot-prefixed" folders. It's language agnostic, so could readily apply to projects outside the Python ecosystem.
 
