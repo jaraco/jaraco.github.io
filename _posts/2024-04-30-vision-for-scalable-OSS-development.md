@@ -87,4 +87,4 @@ Incorporating such projects into an enterprise project would be as simple as cop
 
 There are still some tricky edge cases to work out, especially for namespace packages (where the Python package `jaraco.packaging` should appear under `jaraco` alongside other packages of the same namespace, so to make those projects similarly composable, they will need to have their code also prominently at the top level and be composed within a `jaraco` folder).
 
-Over the coming weeks, I plan to develop a prototype of this system at github.com/coherent-oss, tentatively dubbed the "Coherent Software Development System". [Follow along and discuss here](https://github.com/coherent-oss/roadmap).
+Follow development of this system, which I've tentatively dubbed [Coherent Software Development System](https://github.com/coherent-oss/system/blob/main/README.md).
