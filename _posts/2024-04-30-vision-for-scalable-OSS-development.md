@@ -45,7 +45,7 @@ This new layout has a very shallow tree:
 └── hello.py
 ```
 
-This new layout, which I'll call the _intrinsic layout_ (compared with the extant "flat" and "src" layouts), omits the redundant "world" root directory, but materializes it in the wheel:
+This new layout, which I'll call the *essential layout* (compared with the extant "flat" and "src" layouts), omits the redundant "world" root directory, but materializes it in the wheel:
 
 ```shell
  world main @ pipx run --spec openpack zip-listdir dist/world-0.1.dev0+d20240508-py3-none-any.whl
