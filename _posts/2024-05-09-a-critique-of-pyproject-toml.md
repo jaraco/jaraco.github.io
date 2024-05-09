@@ -85,4 +85,4 @@ In practice, backends are not enforcing this recommendation, so perhaps it shoul
 
 ## File is largely unnecessary
 
-The existence of a static config runs against the motivations such as those in [this vision](../vision-for-scalable-OSS-development) where there is literally zero static config in the source repository.
+The existence of a static config runs against the motivations such as those in [this vision](../vision-for-scalable-OSS-development) and demonstrated by [coherent.build](https://pypi.org/project/coherent.build) where there is literally zero static config in the source repository.
