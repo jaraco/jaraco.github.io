@@ -11,6 +11,7 @@ Open source software (OSS) development is vibrant and exciting, with enterprise-
 - Cross-project changes in these ancillary concerns require some form of static synchronization to each and every project. This process is only scalable when most projects are afforded their own dedicated maintainer or maintenance team.
 - This inversion of priorities gives ancillary concerns prominence while hiding the primary value of the project under repetitive names. This repetition is apparent in the URL for the [primary source for jaraco.packaging](https://github.com/jaraco/jaraco.packaging/tree/main/jaraco/packaging), where "jaraco" appears three times and "packaging" appears twice, not counting the references in static metadata.
 - This repetitive structure limits the ways that the source can be composed. That is, because the repo root is oriented toward the project and not the source, it adds depths to the tree that make it impossible, for example, to put the source code of two projects side by side. As a result, all source must go through a build/distribution process to flatten the source artifacts into something usable and importable.
+- This proliferation of common concerns in static configuration across every project in the ecosystem increases overhead and puts downward pressure on the projects:maintainers ratio.
 
 Having recently spent several years on development at Google, including a stint working on Google Source, I've come to appreciate some of the key characteristics of software development at perhaps the largest scale humanity has every seen:
 
@@ -23,7 +24,7 @@ Having recently spent several years on development at Google, including a stint 
 
 This approach to organizing code means that developers can focus primarily on the value proposition of the code and less on managing the ancillary details across each and every project. Best practices can be developed separately, in the tooling and infrastructure. And when those advances are made, they are applied instantly across all projects (the "build at HEAD" philosophy).
 
-This approach drastically reduces the need for boilerplate and repetitive configuration. It works toward a vision of "zero config" projects, where the presence of the code is sufficient. Imagine a ecosystem where authoring and publishing a hello world project is as simple as:
+This approach drastically reduces the need for boilerplate and repetitive static configuration. It works toward a vision of "zero config" projects, where the presence of the code is sufficient. Imagine a ecosystem where authoring and publishing a hello world project is as simple as:
 
 ```shell
  @ mkdir -p depot/py/world
