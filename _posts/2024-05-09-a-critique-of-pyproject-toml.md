@@ -21,6 +21,8 @@ Consider the [suite of projects](https://jaraco.com/projects) I maintain. The bu
 
 The need for tools like Cookie Cutter or the skeleton demonstrates that the concerns present in the metadata go beyond those of a statically-defined standalone project.
 
+In contrast, enterprise organizations avoid most of this statically-defined metadata, demonstrating an approach that limits friction and scales better.
+
 ## Resistance to composition
 
 The fact that `pyproject.toml` is a single file in the root of the repository and stored in version control means that it can't be easily composed to address multiple concerns.
