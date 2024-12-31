@@ -7,7 +7,7 @@ In 2013, I attempted to get in on the Crytpo game. I applied for an account at M
 
 My interest in Crypto was as a digital currency, a means of holding and transferring value. I bought into the system in order to participate and share in the experience, but I also was speculating that the value could increase and I wanted to hold the currency early in case it did, but speculative investing was my secondary objective.
 
-I used the Bitcoin for everyday purchases, including frozen yogurt at Mr. Yogato in Washington, D.C. and at a food truck in Whitecross Market in London. There, I bought a sandwhich, which I otherwise would have had to pay £5. It was a joy for me to be able to trade crypto for goods without having to think about ATMs, exchange rate gouging, foreign transaction fees, or leftover change.
+I used the Bitcoin for everyday purchases, including frozen yogurt at Mr. Yogato in Washington, D.C., at a food truck in Whitecross Market in London, and at Adam Solar Rides in Pittsburgh. In Whitecross Market, I bought a sandwhich, which was normally priced at £5. It was a joy for me to be able to trade crypto for goods without having to think about ATMs, exchange rate gouging, foreign transaction fees, or leftover change.
 
 That joy was summarily diffused when I learned that the SEC had determined that crypto currency was to be regulated as a security, meaning it should be treated like an investment or stock. This characterization of the currency meant that gains and losses had to be tracked on every transaction, including my yogurt and sandwich purchases.
 
