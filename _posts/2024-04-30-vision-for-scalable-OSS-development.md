@@ -10,15 +10,15 @@ Open source software (OSS) development is vibrant and exciting, with enterprise-
 - Each repo is [littered with files](https://github.com/jaraco/skeleton) defining the configuration for these ancillary concerns, making the source code a secondary concern and even incentivizing moving it to its own `src` folder.
 - Cross-project changes in these ancillary concerns require some form of static synchronization to each and every project. This process is only scalable when most projects are afforded their own dedicated maintainer or maintenance team.
 - This inversion of priorities gives ancillary concerns prominence while hiding the primary value of the project under repetitive names. This repetition is apparent in the URL for the [primary source for jaraco.packaging](https://github.com/jaraco/jaraco.packaging/tree/main/jaraco/packaging), where "jaraco" appears three times and "packaging" appears twice, not counting the references in static metadata.
-- This repetitive structure limits the ways that the source can be composed. That is, because the repo root is oriented toward the project and not the source, it adds depths to the tree that make it impossible, for example, to put the source code of two projects side by side. As a result, all source must go through a build/distribution process to flatten the source artifacts into something usable and importable.
+- This repetitive structure limits the ways that the source can be composed. That is, because the repo root is oriented toward the project and not the source, it adds depths to the tree that make it impossible, for example, to put the source code of two projects side by side. As a result, all source must go through a build/distribution process to flatten the source artifacts into something usable and importable. In other words, the code has to be compiled to a runtime layout.
 - This proliferation of common concerns in static configuration across every project in the ecosystem increases overhead and puts downward pressure on the projects:maintainers ratio.
 
 Having recently spent several years on development at Google, including a stint working on Google Source, I've come to appreciate some of the key characteristics of software development at perhaps the largest scale humanity has every seen:
 
 - The monorepo concept means that every piece of software across the enterprise is developed in the same history. Coordination and synchronization happens naturally as part of committing code.
-- The source code is given primacy and organized around each project's essential location. For example, [tempora](https://github.com/jaraco/tempora) project will appear as `/third_party/py/tempora` with `__init__.py`, `schedule.py`, etc. directly in that folder. As a result, the code appears the way it will be installed and for pure-python projects.
+- The source code is given primacy and organized around each project's essential location. For example, [tempora](https://github.com/jaraco/tempora) project will appear as `/third_party/py/tempora` with `__init__.py`, `schedule.py`, etc. directly in that folder. As a result, the code is layed out exactly as it will be found at runtime. For pure-python projects, the code is directly importable from the source tree.
 - The bulk of the cross-project concerns are managed outside of the project's source and typically managed in infrastructure. For example, a project that relies on pytest for tests will declare "pytest-tests" in the BUILD instructions along with dependencies, but details about how to build it (locally or for a hermetic build) are implied by infrastructure and tooling instead of in `tox` and `.github/workflows/*`.
-- All change logging happens through commit messages. There's no need to manage or curate a "change log" beyond the commits to the source.
+- All change logging happens through commit messages. There's no need to manage or curate a "change log" beyond the commits to the source. Note, this approach does have the effect of disincentivizing incremental, possibly unstable, commits.
 - Builds are largely repeatable, since all tooling and source are determined by the state of the repo at the time of the build.
 - All artifacts are built from source, so there's no need for artifact repositories and the maintenance and coordination friction that entails.
 
@@ -65,7 +65,7 @@ Version: 0.0.1  # based on tags in the repo
 Author-email: "Jason R. Coombs" <jaraco@jaraco.com>  # inferred from commit history
 Classifier: Development Status :: 4 - Beta  # based on version
 Classifier: Programming Language :: Python :: 3  # inferred from source
-Classifier: License :: OSI Approved :: MIT License  # default defined in tooling
+Classifier: License :: OSI Approved :: MIT License  # default defined in tooling or infra
 Python-Requires: ">= 3.8"  # defaults to Python lifecycle supported versions
 Project-Url: Homepage, https://github.com/jaraco/world  # drawn from git origin
 ```
@@ -81,7 +81,7 @@ Such a design would allow distribution packagers and downstream enterprise consu
  @ cd my-amazing-app
  my-amazing-app main @ git submodule add -q gh://jaraco/tempora
  my-amazing-app main @ git submodule add -q gh://cherrypy/cherrypy
- my-amazing-app main @ git commit -a -m "Added tempora and setuptools"
+ my-amazing-app main @ git commit -a -m "Added tempora and cherrypy"
 ```
 
 Incorporating such projects into an enterprise project would be as simple as copying over the code to their essential locations and potentially re-writing the metadata (or possibly honoring it directly). Organizations wishing to have a "monorepo" experience could readily do so by composing their source alongside submodules of open source packages.
