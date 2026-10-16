@@ -656,7 +656,7 @@ NAMESPACES = {}</pre>
       </svg>
     </div>
     <p class="lede reveal" style="--d:.8s;margin-top:56px">Type checkers, linters, test collectors, coverage, tracebacks, &ldquo;go to definition&rdquo;.
-      <b>All of them ask this question. None of them can.</b></p>
+      <b>All of them ask this question. None of them can resolve deterministically.</b></p>
   </div>
   <div class="folio">14</div>
 </section>
@@ -722,8 +722,8 @@ NAMESPACES = {}</pre>
         </ul>
       </div>
     </div>
-    <p class="lede reveal" style="--d:.78s;margin-top:50px">Startup time is the constraint that decides this.
-      <b>I would rather be told the number than guess it.</b></p>
+    <p class="lede reveal" style="--d:.78s;margin-top:50px">Startup time is a tradeoff;
+      scanning all metadata directories can be expensive.</p>
   </div>
   <div class="folio">16</div>
 </section>
@@ -741,10 +741,9 @@ NAMESPACES = {}</pre>
       <div class="l" style="width:860px">
         <h2 class="reveal" style="--d:.1s">One file,<br><em>one syntax</em></h2>
         <div class="codewrap slide-in" style="--d:.4s;margin-top:44px">
-          <div class="tab"><i></i>mylib.redirect</div>
-<pre class="sm"><span class="k">[redirects]</span>
-<span class="s">"coherent.build"</span> = <span class="s">"~/code/coherent.build"</span>
-<span class="s">"mylib"</span>       = <span class="s">"~/code/mylib/src/mylib"</span></pre>
+          <div class="tab"><i></i>redirects</div>
+<pre class="sm"><span class="s">"coherent.build"</span> = <span class="s">"~/code/coherent.build"</span>
+<span class="s">"mylib"</span>          = <span class="s">"~/code/mylib/src/mylib"</span></pre>
         </div>
         <p class="note" style="margin-top:28px">TOML, JSON, or one redirect per line, as .pth does.
           <span style="color:var(--cream)">Alongside .start, as PEP 829 did.</span></p>
