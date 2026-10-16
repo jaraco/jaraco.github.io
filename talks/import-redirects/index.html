@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redirecting Imports — Core Dev Sprint 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===========================================
+   SWITCHYARD — theme tokens
+   Change these to change the whole deck.
+   Authored at the 1920x1080 stage size.
+   =========================================== */
+:root{
+  /* Colors */
+  --ink:#121110; --ink-2:#1B1917; --ink-3:#221F1C; --grain:#262220;
+  --cream:#F3EADA; --cream-dim:#A89C8C; --cream-faint:rgba(243,234,218,.34);
+  --amber:#E8A33D; --amber-soft:rgba(232,163,61,.13); --amber-line:rgba(232,163,61,.42);
+  --teal:#5FA89C; --teal-soft:rgba(95,168,156,.12);
+  --rust:#C96A45;
+  --hair:rgba(243,234,218,.16);
+
+  /* Typography */
+  --font-display:'Instrument Serif',Georgia,serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,monospace;
+
+  /* Motion */
+  --ease:cubic-bezier(.16,1,.3,1);
+
+  /* Stage */
+  --stage-bg:#090908; --slide-bg:var(--ink);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+
+/* ===========================================
+   FIXED 16:9 STAGE: MANDATORY BASE STYLES
+   Slides are authored at 1920x1080 and scaled as a whole.
+   =========================================== */
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--stage-bg)}
+.deck-viewport{position:fixed;inset:0;overflow:hidden;background:var(--stage-bg)}
+.deck-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;transform-origin:0 0;background:var(--slide-bg)}
+.slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;display:block;visibility:hidden;opacity:0;pointer-events:none;background:var(--slide-bg)}
+.slide.active,.slide.visible{visibility:visible;opacity:1;pointer-events:auto;z-index:1}
+img,video,canvas,svg{max-width:100%;max-height:100%}
+.deck-controls{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:1000}
+@media print{
+  html,body{width:1920px;height:auto;overflow:visible;background:#fff}
+  .deck-viewport{position:static;overflow:visible;background:#fff}
+  .deck-stage{position:static;width:auto;height:auto;transform:none!important;background:none}
+  .slide{position:relative;display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;width:1920px;height:1080px;break-after:page;page-break-after:always}
+  .slide:last-child{break-after:auto;page-break-after:auto}
+  .deck-controls{display:none!important}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.2s!important}
+}
+
+/* ===========================================
+   ATMOSPHERE — dot grid + warm junction glow
+   Applied to every slide via ::before / ::after
+   =========================================== */
+.slide::before{content:"";position:absolute;inset:0;
+  background-image:radial-gradient(var(--grain) 1px,transparent 1px);
+  background-size:34px 34px;opacity:.5;pointer-events:none}
+.slide::after{content:"";position:absolute;right:-200px;top:-140px;width:1100px;height:900px;
+  background:radial-gradient(closest-side,rgba(232,163,61,.11),transparent 72%);pointer-events:none}
+.slide.inverted{background:var(--ink-2)}
+.slide.inverted::after{right:auto;left:-220px;bottom:-200px;top:auto;
+  background:radial-gradient(closest-side,rgba(95,168,156,.12),transparent 72%)}
+
+/* ===========================================
+   CHROME — kicker, folio, footer links
+   =========================================== */
+.kicker{position:absolute;left:120px;top:92px;font:500 23px/1 var(--font-mono);
+  letter-spacing:.26em;text-transform:uppercase;color:var(--amber);z-index:3}
+.kicker em{font-style:normal;color:var(--cream-faint)}
+.folio{position:absolute;right:120px;bottom:80px;font:400 40px/1 var(--font-display);color:var(--cream-faint);z-index:3}
+.footlinks{position:absolute;left:120px;bottom:88px;display:flex;gap:38px;align-items:baseline;
+  font:400 23px/1 var(--font-mono);color:var(--cream-faint);z-index:3}
+a{color:var(--teal);text-decoration:none;border-bottom:1px solid rgba(95,168,156,.42);
+  transition:color .25s ease,border-color .25s ease}
+a:hover{color:var(--amber);border-color:var(--amber-line)}
+
+/* ===========================================
+   LAYOUT PRIMITIVES
+   =========================================== */
+.pad{position:absolute;left:120px;right:120px;top:196px;bottom:170px}
+.center{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:0 240px;text-align:center}
+.cols{display:flex;gap:84px;align-items:flex-start}
+.cols>.l{width:800px;flex:none}
+.cols>.r{flex:1;min-width:0}
+.stack{display:flex;flex-direction:column;gap:38px}
+
+/* ===========================================
+   TYPE SCALE
+   =========================================== */
+.eyebrow{font:500 24px/1 var(--font-mono);letter-spacing:.24em;text-transform:uppercase;color:var(--teal)}
+h1{font:400 162px/.94 var(--font-display);color:var(--cream);letter-spacing:-.015em}
+h1 em{font-style:italic;color:var(--amber)}
+h2{font:400 104px/1.02 var(--font-display);color:var(--cream);letter-spacing:-.012em}
+h2 em{font-style:italic;color:var(--amber)}
+h2 small{display:block;font:400 34px/1.5 var(--font-mono);color:var(--cream-dim);
+  letter-spacing:0;margin-top:34px;max-width:1180px}
+h3{font:400 52px/1.12 var(--font-display);color:var(--cream)}
+.statement h2{font-size:132px;line-height:1.02}
+.lede{font:400 34px/1.56 var(--font-mono);color:var(--cream-dim);max-width:1240px}
+.lede b{color:var(--cream);font-weight:400}
+.lede.tight{font-size:30px}
+.note{font:400 25px/1.6 var(--font-mono);color:var(--cream-faint)}
+.rule{width:92px;height:2px;background:var(--amber);border:0}
+
+/* ===========================================
+   CODE BLOCKS — file tab + body
+   =========================================== */
+.codewrap{border:1px solid var(--hair);border-radius:16px;overflow:hidden;background:var(--ink-2)}
+.codewrap .tab{display:flex;align-items:center;gap:14px;padding:20px 30px;
+  background:rgba(243,234,218,.035);border-bottom:1px solid var(--hair);
+  font:500 23px/1 var(--font-mono);color:var(--amber);letter-spacing:.04em}
+.codewrap .tab i{width:9px;height:9px;border-radius:50%;background:var(--amber);flex:none}
+.codewrap .tab.teal{color:var(--teal)} .codewrap .tab.teal i{background:var(--teal)}
+pre{padding:34px 34px;font:400 26px/1.72 var(--font-mono);color:var(--cream);
+  white-space:pre;overflow:hidden}
+pre.sm{font-size:23px;line-height:1.68}
+pre .c{color:#6F665C}            /* comment */
+pre .k{color:var(--teal)}        /* keyword */
+pre .s{color:var(--amber)}       /* string / path */
+pre .d{color:var(--cream-dim)}   /* de-emphasised */
+pre .x{color:var(--rust)}        /* the broken bit */
+
+/* ===========================================
+   CARDS / PANELS
+   =========================================== */
+.cards{display:flex;gap:34px}
+.card{flex:1;background:var(--ink-2);border:1px solid var(--hair);border-radius:18px;padding:44px 40px}
+.card .n{font:400 34px/1 var(--font-display);color:var(--amber);margin-bottom:22px}
+.card h3{font-size:44px;margin-bottom:20px}
+.card p{font:400 25px/1.6 var(--font-mono);color:var(--cream-dim)}
+.card.teal{border-color:rgba(95,168,156,.4);background:var(--teal-soft)}
+.card.teal .n{color:var(--teal)}
+
+.panels{display:flex;gap:40px}
+.panel{flex:1;background:var(--ink-2);border:1px solid var(--hair);border-radius:18px;padding:46px 44px;position:relative}
+.panel.a{border-color:var(--amber-line);background:var(--amber-soft)}
+.panel.b{border-color:rgba(95,168,156,.42);background:var(--teal-soft)}
+.panel h3{font-size:50px;margin-bottom:30px}
+.panel ul{list-style:none;display:flex;flex-direction:column;gap:20px}
+.panel li{font:400 26px/1.52 var(--font-mono);color:var(--cream-dim);padding-left:46px;position:relative}
+.panel li::before{position:absolute;left:0;top:0;font:500 26px/1.52 var(--font-mono)}
+.panel li.pro::before{content:"+";color:var(--teal)}
+.panel li.con::before{content:"\2212";color:var(--rust)}
+.panel li.ask::before{content:"?";color:var(--amber)}
+.panel li b{color:var(--cream);font-weight:400}
+
+/* ===========================================
+   TIMELINE
+   =========================================== */
+.timeline{position:relative;margin-top:96px;height:330px}
+.timeline .rail{position:absolute;left:0;right:0;top:70px;height:2px;background:var(--hair)}
+.timeline .rail i{position:absolute;left:0;top:0;height:2px;width:0;background:var(--amber);
+  transition:width 1.6s var(--ease) .35s}
+.slide.visible .timeline .rail i{width:100%}
+.timeline .nodes{position:absolute;inset:0;display:flex;justify-content:space-between}
+.tl{width:300px;position:relative;padding-top:108px;text-align:left}
+.tl::before{content:"";position:absolute;left:0;top:62px;width:18px;height:18px;border-radius:50%;
+  background:var(--ink);border:2px solid var(--amber)}
+.tl.last::before{background:var(--amber);box-shadow:0 0 0 7px rgba(232,163,61,.17)}
+.tl .y{font:400 50px/1 var(--font-display);color:var(--amber);margin-bottom:16px}
+.tl .t{font:500 25px/1.44 var(--font-mono);color:var(--cream)}
+.tl .s{font:400 22px/1.5 var(--font-mono);color:var(--cream-faint);margin-top:12px}
+
+/* ===========================================
+   QUOTE
+   =========================================== */
+.quote{position:relative;padding-left:96px}
+.quote::before{content:"\201C";position:absolute;left:-6px;top:-30px;
+  font:400 190px/1 var(--font-display);color:var(--teal);opacity:.55}
+.quote p{font:italic 400 70px/1.26 var(--font-display);color:var(--cream)}
+.quote .by{margin-top:40px;font:400 26px/1.5 var(--font-mono);color:var(--cream-dim)}
+
+/* ===========================================
+   DIAGRAM TYPE (inline SVG)
+   =========================================== */
+svg .d-name{font:600 26px var(--font-mono);fill:var(--cream)}
+svg .d-path{font:400 22px var(--font-mono);fill:var(--cream-dim)}
+svg .d-path.live{fill:var(--amber)}
+svg .d-tag{font:500 18px var(--font-mono);fill:var(--cream-faint);letter-spacing:.14em;text-transform:uppercase}
+svg .d-tag.live{fill:var(--teal)}
+svg .box{fill:rgba(255,255,255,.02);stroke:var(--hair)}
+svg .box.live{fill:var(--amber-soft);stroke:var(--amber)}
+svg .box.dead{stroke-dasharray:7 7}
+svg .wire{fill:none;stroke:rgba(243,234,218,.28);stroke-width:2}
+svg .wire.dead{stroke-dasharray:7 8}
+svg .wire.live{stroke:var(--amber);stroke-width:3;stroke-dasharray:420;stroke-dashoffset:420}
+.slide.visible svg .wire.live{animation:draw 1.5s var(--ease) .55s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+svg .junction{fill:var(--amber)}
+.slide.visible svg .junction{animation:pulse 2.8s ease-in-out 1.9s infinite}
+@keyframes pulse{0%,100%{r:7;opacity:1}50%{r:10;opacity:.72}}
+svg .strike{stroke:rgba(243,234,218,.5);stroke-width:2}
+
+/* ===========================================
+   ENTRANCE ANIMATION
+   Stagger with inline style="--d:.25s"
+   =========================================== */
+.reveal{opacity:0;transform:translateY(26px);
+  transition:opacity .8s var(--ease),transform .8s var(--ease);transition-delay:var(--d,0s)}
+.slide.visible .reveal{opacity:1;transform:none}
+.slide-in{opacity:0;transform:translateX(30px);
+  transition:opacity .95s var(--ease),transform .95s var(--ease);transition-delay:var(--d,.35s)}
+.slide.visible .slide-in{opacity:1;transform:none}
+.grow{transform:scaleX(0);transform-origin:left center;
+  transition:transform .9s var(--ease);transition-delay:var(--d,.2s)}
+.slide.visible .grow{transform:scaleX(1)}
+
+/* ===========================================
+   DECK UI — progress bar + edit affordance
+   (outside the 1920x1080 stage)
+   =========================================== */
+.progress{position:fixed;left:0;bottom:0;height:3px;background:var(--amber);z-index:1200;
+  width:0;transition:width .45s var(--ease)}
+.hint{position:fixed;right:20px;bottom:18px;z-index:1200;
+  font:400 13px/1 var(--font-mono);color:rgba(243,234,218,.26)}
+.edit-hotzone{position:fixed;top:0;left:0;width:80px;height:80px;z-index:10000;cursor:pointer}
+.edit-toggle{position:fixed;top:18px;left:18px;z-index:10001;width:46px;height:46px;border-radius:50%;
+  border:1px solid var(--hair);background:var(--ink-2);color:var(--cream);font-size:19px;cursor:pointer;
+  opacity:0;pointer-events:none;transition:opacity .3s ease}
+.edit-toggle.show,.edit-toggle.active{opacity:1;pointer-events:auto}
+.edit-toggle.active{border-color:var(--amber);color:var(--amber)}
+body.editing [contenteditable]{outline:1px dashed var(--amber-line);outline-offset:6px;border-radius:4px}
+body.editing .edit-banner{display:block}
+.edit-banner{display:none;position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:10001;
+  padding:10px 20px;border-radius:999px;background:var(--ink-2);border:1px solid var(--amber-line);
+  font:400 14px/1 var(--font-mono);color:var(--amber)}
+</style>
+</head>
+<body>
+<div class="deck-viewport">
+<main class="deck-stage" id="deckStage">
+
+<!-- ===========================================
+     01 — TITLE
+     Note: the whole talk in one picture. One name, two
+     candidate locations, and only one of them declared.
+     =========================================== -->
+<section class="slide active visible">
+  <div class="kicker">Core Dev Sprint <em>&middot; 20 October 2026</em></div>
+  <div style="position:absolute;left:120px;top:286px;width:880px">
+    <h1 class="reveal" style="--d:.1s">Redirecting<br><em>Imports</em></h1>
+    <p class="lede reveal" style="--d:.3s;margin-top:52px">Declaring that a name lives elsewhere &mdash; <b>and asking it backwards.</b></p>
+  </div>
+  <div class="slide-in" style="position:absolute;right:104px;top:276px;width:760px;height:520px">
+    <svg viewBox="0 0 760 520" role="img" aria-label="The name zope.interface resolving to a declared location rather than the path a finder would search">
+      <rect class="box" x="236" y="0" width="288" height="66" rx="33"/>
+      <text class="d-name" x="380" y="41" text-anchor="middle">zope.interface</text>
+      <path class="wire" d="M380 66 L380 150"/>
+      <circle class="junction" cx="380" cy="158" r="7"/>
+      <path class="wire dead" d="M380 166 C380 250 150 230 150 320"/>
+      <rect class="box dead" x="0" y="338" width="300" height="104" rx="10"/>
+      <text class="d-path" x="22" y="378">site-packages/</text>
+      <text class="d-path" x="22" y="410">  zope/interface/</text>
+      <line class="strike" x1="18" y1="396" x2="252" y2="396"/>
+      <text class="d-tag" x="0" y="478">never written</text>
+      <path class="wire live" d="M380 166 C380 250 610 230 610 320"/>
+      <rect class="box live" x="460" y="338" width="300" height="104" rx="10"/>
+      <text class="d-path live" x="482" y="378">~/code/</text>
+      <text class="d-path live" x="482" y="410">  zope.interface/</text>
+      <text class="d-tag live" x="460" y="478">declared redirect</text>
+    </svg>
+  </div>
+  <div class="footlinks">
+    <span>Jason R. Coombs</span>
+    <a href="https://github.com/python/cpython/issues/157524">gh-157524</a>
+  </div>
+  <div class="folio">01</div>
+</section>
+
+<!-- ===========================================
+     02 — WHERE THIS CAME FROM
+     Note: an ordinary bug report. Every type checker has one.
+     Mention mypy#13392 and basedpyright#731 as the siblings.
+     =========================================== -->
+<section class="slide inverted">
+  <div class="kicker">The report <em>&middot; ty#475</em></div>
+  <div class="pad">
+    <div class="quote reveal" style="--d:.1s;max-width:1480px">
+      <p>I get a whole bunch of unresolved-import issues.</p>
+      <div class="by">&mdash; every type checker's inbox, about editable installs</div>
+    </div>
+    <p class="lede reveal" style="--d:.35s;margin-top:92px">Eighteen months of discussion arrived at one conclusion:
+      this is not a bug any one tool can fix. It needs a standard. <b>Nobody had written it.</b></p>
+  </div>
+  <div class="footlinks">
+    <a href="https://github.com/astral-sh/ty/issues/475">astral-sh/ty#475</a>
+    <a href="https://github.com/python/mypy/issues/13392">python/mypy#13392</a>
+    <a href="https://github.com/DetachHead/basedpyright/issues/731">basedpyright#731</a>
+  </div>
+  <div class="folio">02</div>
+</section>
+
+<!-- ===========================================
+     03 — TIMELINE
+     Note: 29 years of one file format carrying more and more weight.
+     =========================================== -->
+<section class="slide">
+  <div class="kicker">How we got here</div>
+  <div class="pad">
+    <h2 class="reveal" style="--d:.1s">Twenty-nine years of <em>.pth</em></h2>
+    <div class="timeline">
+      <div class="rail"><i></i></div>
+      <div class="nodes">
+        <div class="tl reveal" style="--d:.5s">
+          <div class="y">1997</div>
+          <div class="t">site.py learns .pth</div>
+          <div class="s">a line is a directory;<br>append it to sys.path</div>
+        </div>
+        <div class="tl reveal" style="--d:.7s">
+          <div class="y">2001</div>
+          <div class="t">import lines</div>
+          <div class="s">a config file becomes<br>a startup hook</div>
+        </div>
+        <div class="tl reveal" style="--d:.9s">
+          <div class="y">c. 2006</div>
+          <div class="t">namespace packages</div>
+          <div class="s">setuptools synthesises<br>modules at startup</div>
+        </div>
+        <div class="tl reveal" style="--d:1.1s">
+          <div class="y">2021</div>
+          <div class="t">PEP 660 editables</div>
+          <div class="s">a .pth that installs<br>a meta path finder</div>
+        </div>
+        <div class="tl last reveal" style="--d:1.3s">
+          <div class="y">now</div>
+          <div class="t">PEP 829</div>
+          <div class="s">import lines deprecated;<br>the hook is closing</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="folio">03</div>
+</section>
+
+<!-- ===========================================
+     04 — 1997: THE ORIGINAL IDEA
+     Note: quote the actual commit subject. The format was
+     never meant to express anything but "also look here".
+     =========================================== -->
+<section class="slide">
+  <div class="kicker">1997 <em>&middot; the original idea</em></div>
+  <div class="pad">
+    <div class="cols">
+      <div class="l stack">
+        <h2 class="reveal" style="--d:.1s">One job:<br><em>also look here</em></h2>
+        <p class="lede tight reveal" style="--d:.3s">A path configuration file says nothing about names.
+          It extends the search path and lets the finders sort it out.</p>
+        <p class="note reveal" style="--d:.45s">&ldquo;New site.py semantics&rdquo; &mdash; 29 Aug 1997</p>
+      </div>
+      <div class="r slide-in" style="--d:.4s">
+        <div class="codewrap">
+          <div class="tab"><i></i>site-packages/mylib.pth</div>
+<pre><span class="s">/home/jaraco/code/mylib</span>
+<span class="s">/opt/vendor/py</span></pre>
+        </div>
+        <p class="note" style="margin-top:34px">Two lines, two directories on <span style="color:var(--cream)">sys.path</span>.
+          Everything inside them becomes importable &mdash; whether you meant it or not.</p>
+      </div>
+    </div>
+  </div>
+  <div class="folio">04</div>
+</section>
+
+<!-- ===========================================
+     05 — 2001: THE IMPORT LINE
+     Note: Patch #103134. One line of support turned a data file
+     into arbitrary startup code — and that is where everything
+     clever (and unreadable) has lived ever since. The frame hack
+     at the end is real: it reads 'sitedir' out of the caller.
+     =========================================== -->
+<section class="slide inverted">
+  <div class="kicker">2001 <em>&middot; the escape hatch</em></div>
+  <div class="pad">
+    <h2 class="reveal" style="--d:.1s">&ldquo;Support <em>import</em> lines in pth files&rdquo;<small>Patch #103134, 11 January 2001. Twenty-five years of cleverness followed.</small></h2>
+    <div class="codewrap slide-in" style="--d:.45s;margin-top:52px">
+      <div class="tab"><i></i>zope-nspkg.pth &mdash; abridged, and all on one line</div>
+<pre class="sm"><span class="k">import</span> sys, types, os;
+p = os.path.join(sys._getframe(1).f_locals[<span class="s">'sitedir'</span>], *(<span class="s">'zope'</span>,));
+m = sys.modules.setdefault(<span class="s">'zope'</span>, <span class="d">...PathFinder.find_spec(...)</span>);
+mp = (m <span class="k">or</span> []) <span class="k">and</span> m.__dict__.setdefault(<span class="s">'__path__'</span>, []);
+(p <span class="k">not in</span> mp) <span class="k">and</span> mp.append(p)</pre>
+    </div>
+    <p class="note reveal" style="--d:.7s;margin-top:34px">It reaches into the caller's frame for
+      <span style="color:var(--cream)">sitedir</span>. That detail outlived the people who wrote it &mdash; and broke in 3.15.</p>
+  </div>
+  <div class="footlinks"><a href="https://github.com/python/cpython/issues/156404">gh-156404</a></div>
+  <div class="folio">05</div>
+</section>
+
+<!-- ===========================================
+     06 — TODAY: EDITABLE INSTALLS
+     Note: the key beat. The mapping we all want ALREADY EXISTS,
+     precise and machine-readable — behind an exec, in a private module.
+     =========================================== -->
+<section class="slide">
+  <div class="kicker">Today <em>&middot; editable installs</em></div>
+  <div class="pad">
+    <h2 class="reveal" style="--d:.1s">The mapping <em>already exists</em></h2>
+    <div class="cols" style="margin-top:54px">
+      <div class="l">
+        <div class="codewrap slide-in" style="--d:.4s">
+          <div class="tab"><i></i>__editable__.mylib-1.0.pth</div>
+<pre class="sm"><span class="k">import</span> __editable___mylib_1_0_finder;
+__editable___mylib_1_0_finder.install()</pre>
+        </div>
+      </div>
+      <div class="r">
+        <div class="codewrap slide-in" style="--d:.6s">
+          <div class="tab teal"><i></i>__editable___mylib_1_0_finder.py</div>
+<pre class="sm">MAPPING = {<span class="s">'mylib'</span>: <span class="s">'~/code/mylib/src/mylib'</span>}
+NAMESPACES = {}</pre>
+        </div>
+      </div>
+    </div>
+    <p class="lede reveal" style="--d:.8s;margin-top:60px">Exactly the fact every tool needs, written down precisely &mdash;
+      <b>in a private module, behind an exec.</b></p>
+  </div>
+  <div class="folio">06</div>
+</section>
+
+<!-- ===========================================
+     07 — WHAT STATIC TOOLS DO WITH THAT
+     Note: three real breakages. Then the dilemma: parse a private
+     module and freeze setuptools' internals, or ship a worse tool.
+     =========================================== -->
+<section class="slide">
+  <div class="kicker">The cost</div>
+  <div class="pad">
+    <h2 class="reveal" style="--d:.1s">Everyone pays, <em>separately</em></h2>
+    <div class="cards" style="margin-top:62px">
+      <div class="card reveal" style="--d:.35s">
+        <div class="n">01</div>
+        <h3>Type checkers</h3>
+        <p>Cannot execute your startup code, so the package under development simply does not exist.</p>
+      </div>
+      <div class="card reveal" style="--d:.5s">
+        <div class="n">02</div>
+        <h3>Linters</h3>
+        <p>Ruff's N999 flags a module name it cannot map back to a package it can see.</p>
+      </div>
+      <div class="card reveal" style="--d:.65s">
+        <div class="n">03</div>
+        <h3>Test runners</h3>
+        <p>pytest derives a module name from a file path. Redirected trees give the wrong answer.</p>
+      </div>
+    </div>
+    <p class="lede reveal" style="--d:.85s;margin-top:58px">The workaround on the table is to parse a build backend's private finder.
+      <b>That freezes someone else's internals as a de facto standard.</b></p>
+  </div>
+  <div class="folio">07</div>
+</section>
+
+<!-- ===========================================
+     08 — PEP 829
+     Note: deadline slide. Whatever replaces this, setuptools needs
+     somewhere to go, and proxy modules are the only alternative today.
+     =========================================== -->
+<section class="slide inverted">
+  <div class="kicker">PEP 829 <em>&middot; the hatch closes</em></div>
+  <div class="pad">
+    <div class="cols">
+      <div class="l stack">
+        <h2 class="reveal" style="--d:.1s">The clever line<br><em>goes away</em></h2>
+        <p class="lede tight reveal" style="--d:.3s">Import lines in .pth files are deprecated.
+          Startup entry points move to <b>.start</b> files, which run code on purpose rather than by accident.</p>
+      </div>
+      <div class="r stack slide-in" style="--d:.45s">
+        <div class="codewrap">
+          <div class="tab teal"><i></i>Lib/site.py</div>
+<pre class="sm"><span class="c"># - &lt;name&gt;.pth files extend sys.path with</span>
+<span class="c">#   additional directories (one per line).</span>
+<span class="c">#   Lines starting with "import" are</span>
+<span class="c">#   deprecated (see PEP 829).</span></pre>
+        </div>
+        <p class="note">So the question is no longer whether setuptools should stop doing this.
+          It is <span style="color:var(--cream)">what it should do instead</span>.</p>
+      </div>
+    </div>
+  </div>
+  <div class="footlinks"><a href="https://peps.python.org/pep-0829/">PEP 829</a></div>
+  <div class="folio">08</div>
+</section>
+
+<!-- ===========================================
+     09 — PIVOT
+     Note: breathe here. The rest of the talk is not about packaging.
+     =========================================== -->
+<section class="slide statement">
+  <div class="center">
+    <p class="eyebrow reveal" style="--d:.1s">The pivot</p>
+    <h2 class="reveal" style="--d:.3s;margin-top:48px">The need was never<br>about <em>editable installs</em>.</h2>
+    <hr class="rule grow" style="--d:.7s;margin-top:58px">
+  </div>
+  <div class="folio">09</div>
+</section>
+
+<!-- ===========================================
+     10 — THE NEED, GENERALISED
+     Note: editable installs are the loudest case, not the only one.
+     Every one of these is solved today with a sys.path hack, a meta
+     path finder, or a stub module.
+     =========================================== -->
+<section class="slide">
+  <div class="kicker">The need, generalised</div>
+  <div class="pad">
+    <h2 class="reveal" style="--d:.1s">Four places I keep<br>wanting <em>the same thing</em></h2>
+    <div class="cards" style="margin-top:58px">
+      <div class="card reveal" style="--d:.35s">
+        <div class="n">&mdash;</div>
+        <h3>Editable installs</h3>
+        <p>The checkout, not the copy.</p>
+      </div>
+      <div class="card reveal" style="--d:.47s">
+        <div class="n">&mdash;</div>
+        <h3>Vendored code</h3>
+        <p>A bundled dependency, importable under its own name.</p>
+      </div>
+      <div class="card reveal" style="--d:.59s">
+        <div class="n">&mdash;</div>
+        <h3>Compatibility shims</h3>
+        <p>An old name that should resolve to a new location.</p>
+      </div>
+      <div class="card reveal" style="--d:.71s">
+        <div class="n">&mdash;</div>
+        <h3>Generated trees</h3>
+        <p>Build output exposed under the source package's name.</p>
+      </div>
+    </div>
+    <p class="lede reveal" style="--d:.9s;margin-top:56px">Four ad-hoc solutions. <b>One fact.</b></p>
+  </div>
+  <div class="folio">10</div>
+</section>
+
+<!-- ===========================================
+     11 — THE INVARIANT
+     Note: say it plainly, then let it sit. Small, static, declarative.
+     =========================================== -->
+<section class="slide statement inverted">
+  <div class="center">
+    <p class="eyebrow reveal" style="--d:.1s">The whole proposal</p>
+    <h2 class="reveal" style="--d:.3s;margin-top:48px">The name <em>N</em><br>lives at <em>P</em>.</h2>
+    <p class="lede reveal" style="--d:.6s;margin-top:60px;text-align:center">Small. Static. Declarative.
+      <b>Written once, read by everyone.</b></p>
+  </div>
+  <div class="folio">11</div>
+</section>
+
+<!-- ===========================================
+     12 — WHAT IT MUST DO
+     Note: R5 is the one to dwell on. If the import system honours
+     the declaration, proxy modules and finder-installing .pth lines
+     stop existing — the runtime and the static view cannot disagree.
+     =========================================== -->
+<section class="slide">
+  <div class="kicker">The proposition</div>
+  <div class="pad">
+    <h2 class="reveal" style="--d:.1s">Five things it has to do</h2>
+    <div class="panels" style="margin-top:56px">
+      <div class="panel a reveal" style="--d:.35s">
+        <h3>Readable</h3>
+        <ul>
+          <li class="pro"><b>Static.</b> No code runs to learn the mapping.</li>
+          <li class="pro"><b>Inherited.</b> Redirect a package, get its submodules.</li>
+          <li class="pro"><b>Reversible.</b> Name to path, and path to name.</li>
+        </ul>
+      </div>
+      <div class="panel b reveal" style="--d:.55s">
+        <h3>Real</h3>
+        <ul>
+          <li class="pro"><b>Honoured by the import system itself</b> &mdash; not metadata describing a hack implemented elsewhere.</li>
+          <li class="pro"><b>Introspectable</b> at run time, so tracebacks and debuggers can explain what happened.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="lede reveal" style="--d:.78s;margin-top:54px">Get the fourth one right and <b>proxy modules and finder-installing
+      .pth lines stop existing.</b> The runtime and the static view cannot disagree.</p>
+  </div>
+  <div class="folio">12</div>
+</section>
+
+<!-- ===========================================
+     13 — TWO LAYOUTS A PATH ENTRY CANNOT EXPRESS
+     Note: this is why "just add a directory to sys.path" is not the
+     answer. Left: leakage. Right: the directory is not the name —
+     no zope/ exists anywhere, and the name is not a legal dirname.
+     =========================================== -->
+<section class="slide">
+  <div class="kicker">Why not just extend the path</div>
+  <div class="pad">
+    <h2 class="reveal" style="--d:.1s">Two layouts a path entry<br><em>cannot</em> express</h2>
+    <div class="cols" style="margin-top:52px;gap:60px">
+      <div class="l" style="width:820px">
+        <div class="codewrap slide-in" style="--d:.4s">
+          <div class="tab"><i></i>one name, or everything beside it</div>
+<pre class="sm"><span class="c"># mylib.pth</span>
+<span class="s">/home/jaraco/code/mylib/src</span>
+
+<span class="c"># now importable, like it or not:</span>
+<span class="x">mylib  scratch  conftest  vendor  setup</span></pre>
+        </div>
+        <p class="note" style="margin-top:28px">Declaring one name should not expose its siblings.</p>
+      </div>
+      <div class="r">
+        <div class="codewrap slide-in" style="--d:.6s">
+          <div class="tab teal"><i></i>the directory is not the name</div>
+<pre class="sm"><span class="s">~/code/zope.interface/</span>
+  __init__.py
+  _zope_interface.py
+
+<span class="c"># imported as:  zope.interface</span>
+<span class="c"># there is no  zope/  anywhere</span></pre>
+        </div>
+        <p class="note" style="margin-top:28px">The repo <span style="color:var(--cream)">is</span> the package.
+          No path entry can say this.</p>
+      </div>
+    </div>
+  </div>
+  <div class="folio">13</div>
+</section>
+
+<!-- ===========================================
+     14 — THE MISSING HALF
+     Note: the forward direction has a dozen hacks. The reverse
+     direction has none — it is inference, everywhere, and it is
+     exactly what tooling needs.
+     =========================================== -->
+<section class="slide inverted">
+  <div class="kicker">The half nobody has</div>
+  <div class="pad">
+    <h2 class="reveal" style="--d:.1s">Ask it <em>backwards</em><small>Given this file, what name is it imported under? Today: a guess, derived from directory structure.</small></h2>
+    <div class="slide-in" style="--d:.5s;margin-top:76px">
+      <svg viewBox="0 0 1680 230" style="width:1680px;height:230px" role="img" aria-label="A file path resolving back to a dotted module name through an unknown step">
+        <rect class="box" x="0" y="40" width="660" height="104" rx="12"/>
+        <text class="d-path" x="28" y="80">~/code/zope.interface/</text>
+        <text class="d-path" x="28" y="114">  _zope_interface.py</text>
+        <text class="d-tag" x="0" y="180">a file on disk</text>
+
+        <path class="wire" d="M680 92 L800 92"/>
+        <circle cx="840" cy="92" r="34" fill="none" stroke="var(--amber)" stroke-width="2" stroke-dasharray="6 7"/>
+        <text x="840" y="105" text-anchor="middle" style="font:400 40px var(--font-display);fill:var(--amber)">?</text>
+        <path class="wire" d="M880 92 L1000 92"/>
+
+        <rect class="box live" x="1020" y="40" width="660" height="104" rx="12"/>
+        <text class="d-path live" x="1048" y="100">zope.interface._zope_interface</text>
+        <text class="d-tag live" x="1020" y="180">the name it answers to</text>
+      </svg>
+    </div>
+    <p class="lede reveal" style="--d:.8s;margin-top:56px">Type checkers, linters, test collectors, coverage, tracebacks, &ldquo;go to definition&rdquo;.
+      <b>All of them ask this question. None of them can.</b></p>
+  </div>
+  <div class="folio">14</div>
+</section>
+
+<!-- ===========================================
+     15 — THE PROTOTYPE
+     Note: be honest. This exists and works, and it is dirty:
+     a second syntax smuggled into the comments of a file format
+     that already has two meanings.
+     =========================================== -->
+<section class="slide">
+  <div class="kicker">Prototype <em>&middot; coherent.build 0.41</em></div>
+  <div class="pad">
+    <div class="cols">
+      <div class="l stack">
+        <h2 class="reveal" style="--d:.1s">An existence<br><em>proof</em></h2>
+        <p class="lede tight reveal" style="--d:.3s">Comments are ignored by <b>site</b>, so the file is inert today &mdash;
+          and a tool that knows the convention gets the mapping for free, from a directory it already scans.</p>
+        <p class="note reveal" style="--d:.45s">Shipping now. Not a proposal.</p>
+      </div>
+      <div class="r stack slide-in" style="--d:.45s">
+        <div class="codewrap">
+          <div class="tab"><i></i>coherent.build-redirects.pth</div>
+<pre class="sm"><span class="c"># import redirect coherent.build -&gt;</span>
+<span class="c">#   /home/jaraco/code/coherent.build</span></pre>
+        </div>
+        <p class="lede tight" style="color:var(--rust)">It is also dirty: a third syntax, hidden in the comments
+          of a format that already means two things.</p>
+      </div>
+    </div>
+  </div>
+  <div class="footlinks"><a href="https://github.com/coherent-oss/coherent.build">coherent-oss/coherent.build</a></div>
+  <div class="folio">15</div>
+</section>
+
+<!-- ===========================================
+     16 — DECISION ONE: WHERE DOES IT LIVE
+     Note: the real trade-off, and the one I most want argued in
+     this room. Metadata is the clean model but every interpreter
+     start pays for it. A site-packages file costs one readdir —
+     but then: what names the file, and how do you redirect
+     zope.interface, a submodule of a namespace package?
+     =========================================== -->
+<section class="slide">
+  <div class="kicker">Decision one</div>
+  <div class="pad">
+    <h2 class="reveal" style="--d:.1s">Where does the declaration <em>live</em>?</h2>
+    <div class="panels" style="margin-top:52px">
+      <div class="panel a reveal" style="--d:.35s">
+        <h3>In the .dist-info</h3>
+        <ul>
+          <li class="pro">Owned by the distribution; <b>uninstalls with it</b>.</li>
+          <li class="pro">Versioned with the wheel; the obvious home for packaging facts.</li>
+          <li class="con"><b>Every interpreter start</b> must scan every <b>*.dist-info</b> to find out.</li>
+        </ul>
+      </div>
+      <div class="panel b reveal" style="--d:.55s">
+        <h3>In site-packages</h3>
+        <ul>
+          <li class="pro">One readdir &mdash; <b>the cost .pth already pays</b>.</li>
+          <li class="ask">What names the file, when the redirect is for <b>zope.interface</b>?</li>
+          <li class="ask">How does a finder consult it for <b>submodules and subpackages</b> without reading everything?</li>
+        </ul>
+      </div>
+    </div>
+    <p class="lede reveal" style="--d:.78s;margin-top:50px">Startup time is the constraint that decides this.
+      <b>I would rather be told the number than guess it.</b></p>
+  </div>
+  <div class="folio">16</div>
+</section>
+
+<!-- ===========================================
+     17 — DECISION TWO: FORMAT AND SEMANTICS
+     Note: the format matters less than the semantics, but one
+     syntax per file is the point. Then the questions that will
+     actually eat the PEP.
+     =========================================== -->
+<section class="slide inverted">
+  <div class="kicker">Decision two</div>
+  <div class="pad">
+    <div class="cols" style="gap:70px">
+      <div class="l" style="width:860px">
+        <h2 class="reveal" style="--d:.1s">One file,<br><em>one syntax</em></h2>
+        <div class="codewrap slide-in" style="--d:.4s;margin-top:44px">
+          <div class="tab"><i></i>mylib.redirect</div>
+<pre class="sm"><span class="k">[redirects]</span>
+<span class="s">"coherent.build"</span> = <span class="s">"~/code/coherent.build"</span>
+<span class="s">"mylib"</span>       = <span class="s">"~/code/mylib/src/mylib"</span></pre>
+        </div>
+        <p class="note" style="margin-top:28px">TOML, JSON, or one redirect per line, as .pth does.
+          <span style="color:var(--cream)">Alongside .start, as PEP 829 did.</span></p>
+      </div>
+      <div class="r">
+        <div class="panel reveal" style="--d:.6s">
+          <h3>And then the hard part</h3>
+          <ul>
+            <li class="ask">Precedence against sys.path entries, and against other redirects.</li>
+            <li class="ask">Relative paths &mdash; relative to what?</li>
+            <li class="ask">May a redirect target be redirected? Do we detect cycles?</li>
+            <li class="ask">Filesystem only, or anything an importer can reach?</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="folio">17</div>
+</section>
+
+<!-- ===========================================
+     18 — THE ASK
+     Note: three questions, then stop talking. The PEP is the
+     deliverable; this room decides whether the import system is
+     the right home for it.
+     =========================================== -->
+<section class="slide">
+  <div class="kicker">The ask</div>
+  <div class="pad">
+    <h2 class="reveal" style="--d:.1s">What I want<br>from <em>this room</em></h2>
+    <div class="cards" style="margin-top:58px">
+      <div class="card teal reveal" style="--d:.35s">
+        <div class="n">01</div>
+        <h3>Is the import system the right home?</h3>
+        <p>Or is this packaging metadata that tools read and CPython ignores?</p>
+      </div>
+      <div class="card teal reveal" style="--d:.5s">
+        <div class="n">02</div>
+        <h3>What can startup afford?</h3>
+        <p>If .dist-info costs too much, that settles the format question for us.</p>
+      </div>
+      <div class="card teal reveal" style="--d:.65s">
+        <div class="n">03</div>
+        <h3>Who writes it with me?</h3>
+        <p>The file format is a packaging PEP. Honouring it is ours.</p>
+      </div>
+    </div>
+    <p class="lede reveal" style="--d:.85s;margin-top:60px">Come argue on the issue.</p>
+  </div>
+  <div class="footlinks">
+    <a href="https://github.com/python/cpython/issues/157524">gh-157524</a>
+    <a href="https://github.com/astral-sh/ty/issues/475">astral-sh/ty#475</a>
+    <a href="https://peps.python.org/pep-0829/">PEP 829</a>
+    <a href="https://discuss.python.org/c/packaging/14">discuss.python.org/c/packaging</a>
+  </div>
+  <div class="folio">18</div>
+</section>
+
+</main>
+</div>
+
+<!-- Deck UI, outside the 1920x1080 stage -->
+<div class="progress" id="progress"></div>
+<div class="hint">&larr; &rarr; to navigate &middot; E to edit</div>
+<div class="edit-hotzone"></div>
+<button class="edit-toggle" id="editToggle" title="Edit mode (E)" aria-label="Toggle edit mode">&#9998;</button>
+<div class="edit-banner">edit mode &middot; click any text &middot; Ctrl+S to save a copy &middot; E to exit</div>
+
+<script>
+/* ===========================================
+   SLIDE PRESENTATION CONTROLLER
+   - scales the fixed 1920x1080 stage to the window
+   - keyboard / wheel / touch navigation
+   - progress bar, hash deep-links
+   =========================================== */
+class SlidePresentation {
+    constructor() {
+        this.slides = [...document.querySelectorAll('.slide')];
+        this.stage = document.getElementById('deckStage');
+        this.bar = document.getElementById('progress');
+        this.current = 0;
+        this.setupStageScale();
+        this.setupKeyboardNav();
+        this.setupWheelNav();
+        this.setupTouchNav();
+        // Deep-link: index.html#7 opens slide 7
+        const fromHash = parseInt(location.hash.slice(1), 10);
+        this.showSlide(Number.isFinite(fromHash) ? fromHash - 1 : 0);
+    }
+
+    /* Scale the whole stage with one transform; never reflow slide content. */
+    setupStageScale() {
+        const scale = () => {
+            const factor = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+            const x = (window.innerWidth - 1920 * factor) / 2;
+            const y = (window.innerHeight - 1080 * factor) / 2;
+            this.stage.style.transform = `translate(${x}px, ${y}px) scale(${factor})`;
+        };
+        scale();
+        window.addEventListener('resize', scale);
+    }
+
+    setupKeyboardNav() {
+        document.addEventListener('keydown', (e) => {
+            if (document.body.classList.contains('editing')) return;
+            switch (e.key) {
+                case 'ArrowRight': case 'ArrowDown': case ' ': case 'PageDown':
+                    e.preventDefault(); this.next(); break;
+                case 'ArrowLeft': case 'ArrowUp': case 'PageUp':
+                    e.preventDefault(); this.prev(); break;
+                case 'Home': e.preventDefault(); this.showSlide(0); break;
+                case 'End': e.preventDefault(); this.showSlide(this.slides.length - 1); break;
+            }
+        });
+    }
+
+    /* Wheel navigation, throttled so one gesture moves one slide. */
+    setupWheelNav() {
+        let locked = false;
+        window.addEventListener('wheel', (e) => {
+            if (locked || document.body.classList.contains('editing')) return;
+            if (Math.abs(e.deltaY) < 18) return;
+            locked = true;
+            e.deltaY > 0 ? this.next() : this.prev();
+            setTimeout(() => { locked = false; }, 650);
+        }, { passive: true });
+    }
+
+    setupTouchNav() {
+        let x0 = null, y0 = null;
+        window.addEventListener('touchstart', (e) => {
+            x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
+        }, { passive: true });
+        window.addEventListener('touchend', (e) => {
+            if (x0 === null) return;
+            const dx = e.changedTouches[0].clientX - x0;
+            const dy = e.changedTouches[0].clientY - y0;
+            if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+                dx < 0 ? this.next() : this.prev();
+            }
+            x0 = y0 = null;
+        }, { passive: true });
+    }
+
+    next() { this.showSlide(this.current + 1); }
+    prev() { this.showSlide(this.current - 1); }
+
+    showSlide(index) {
+        this.current = Math.max(0, Math.min(index, this.slides.length - 1));
+        this.slides.forEach((slide, i) => {
+            slide.classList.toggle('active', i === this.current);
+            slide.classList.toggle('visible', i === this.current);
+        });
+        this.bar.style.width = ((this.current + 1) / this.slides.length * 100) + '%';
+        history.replaceState(null, '', '#' + (this.current + 1));
+    }
+}
+
+/* ===========================================
+   INLINE EDITING
+   Hover the top-left corner or press E. Edits persist to
+   localStorage; Ctrl+S downloads a copy with edits baked in.
+   =========================================== */
+class InlineEditor {
+    constructor() {
+        this.isActive = false;
+        this.selector = 'h1, h2, h3, p, li, .note, .eyebrow, .tl .t, .tl .s, .tl .y, .card .n, .by, .folio';
+        this.restore();
+        this.bindUI();
+    }
+
+    get nodes() { return [...document.querySelectorAll(this.selector)]; }
+
+    toggleEditMode() {
+        this.isActive = !this.isActive;
+        document.body.classList.toggle('editing', this.isActive);
+        document.getElementById('editToggle').classList.toggle('active', this.isActive);
+        this.nodes.forEach((n, i) => {
+            n.contentEditable = this.isActive ? 'true' : 'false';
+            if (this.isActive) {
+                n.dataset.editIndex = i;
+                n.addEventListener('blur', this.save, { once: true });
+            }
+        });
+    }
+
+    save = () => {
+        const data = {};
+        this.nodes.forEach((n, i) => { data[i] = n.innerHTML; });
+        try { localStorage.setItem('import-redirects-deck', JSON.stringify(data)); } catch (e) {}
+    };
+
+    restore() {
+        let data;
+        try { data = JSON.parse(localStorage.getItem('import-redirects-deck') || 'null'); } catch (e) { return; }
+        if (!data) return;
+        this.nodes.forEach((n, i) => { if (data[i] !== undefined) n.innerHTML = data[i]; });
+    }
+
+    /* Download the current DOM as a standalone copy. */
+    export() {
+        const clone = document.documentElement.cloneNode(true);
+        clone.querySelectorAll('[contenteditable]').forEach(n => n.removeAttribute('contenteditable'));
+        clone.querySelectorAll('[data-edit-index]').forEach(n => n.removeAttribute('data-edit-index'));
+        const blob = new Blob(['<!DOCTYPE html>\n' + clone.outerHTML], { type: 'text/html' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'import-redirects-edited.html';
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
+
+    bindUI() {
+        const toggle = document.getElementById('editToggle');
+        const hotzone = document.querySelector('.edit-hotzone');
+        let hideTimeout = null;
+
+        // Hover affordance with a grace period so the button stays clickable.
+        const show = () => { clearTimeout(hideTimeout); toggle.classList.add('show'); };
+        const hide = () => {
+            hideTimeout = setTimeout(() => {
+                if (!this.isActive) toggle.classList.remove('show');
+            }, 400);
+        };
+        hotzone.addEventListener('mouseenter', show);
+        hotzone.addEventListener('mouseleave', hide);
+        toggle.addEventListener('mouseenter', show);
+        toggle.addEventListener('mouseleave', hide);
+        hotzone.addEventListener('click', () => this.toggleEditMode());
+        toggle.addEventListener('click', () => this.toggleEditMode());
+
+        document.addEventListener('keydown', (e) => {
+            if ((e.key === 'e' || e.key === 'E') && !e.target.getAttribute('contenteditable')) {
+                this.toggleEditMode();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault(); this.save(); this.export();
+            }
+        });
+    }
+}
+
+const deck = new SlidePresentation();
+const editor = new InlineEditor();
+</script>
+</body>
+</html>
