@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coherent System — Triumphs and Challenges</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;500;700&family=Archivo:wght@400;500;600&family=Azeret+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===========================================
+   PLATE — theme tokens
+   A parts-catalogue / engineering-plate system: bone stock,
+   hairline rules, numbered plates, condensed signage display.
+   Blue carries structure; vermilion carries failure.
+   Authored at the 1920x1080 stage size.
+   =========================================== */
+:root{
+  /* Stock */
+  --paper:#E9E5DC; --paper-2:#F2EFE8; --paper-3:#DFDAD0;
+  --ink:#17191B;
+  --ink-60:#5B5F63; --ink-30:#9A9DA0;
+  --rule:#C6C1B6;
+  --grid:rgba(23,25,27,.05);
+
+  /* Signals */
+  --blue:#1F3FB5; --blue-wash:rgba(31,63,181,.075); --blue-rule:rgba(31,63,181,.38);
+  --red:#C62A14;  --red-wash:rgba(198,42,20,.065);  --red-rule:rgba(198,42,20,.34);
+  --blue-lift:#8FA6F0; --red-lift:#F0866F;
+
+  /* Typography */
+  --display:'Big Shoulders Display','Arial Narrow',sans-serif;
+  --text:'Archivo',Helvetica,sans-serif;
+  --mono:'Azeret Mono',ui-monospace,monospace;
+
+  /* Motion */
+  --ease:cubic-bezier(.2,.9,.2,1);
+
+  /* Stage */
+  --stage-bg:#D4CFC4; --slide-bg:var(--paper);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+
+/* ===========================================
+   FIXED 16:9 STAGE: MANDATORY BASE STYLES
+   Slides are authored at 1920x1080; one transform
+   scales the whole stage to the viewport.
+   =========================================== */
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--stage-bg)}
+.deck-viewport{position:fixed;inset:0;overflow:hidden;background:var(--stage-bg)}
+.deck-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;
+  transform-origin:0 0;background:var(--slide-bg)}
+.slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;display:block;
+  visibility:hidden;opacity:0;pointer-events:none;background:var(--slide-bg)}
+.slide.active,.slide.visible{visibility:visible;opacity:1;pointer-events:auto;z-index:1}
+img,video,canvas,svg{max-width:100%;max-height:100%}
+.deck-controls{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:1000}
+@media print{
+  html,body{width:1920px;height:auto;overflow:visible;background:#fff}
+  .deck-viewport{position:static;overflow:visible;background:#fff}
+  .deck-stage{position:static;width:auto;height:auto;transform:none!important;background:none}
+  .slide{position:relative;display:block!important;visibility:visible!important;opacity:1!important;
+    pointer-events:auto!important;width:1920px;height:1080px;break-after:page;page-break-after:always}
+  .slide:last-child{break-after:auto;page-break-after:auto}
+  .deck-controls{display:none!important}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.2s!important}
+}
+
+/* ===========================================
+   PLATE SURFACE — engineering grid, vignette, frame
+   Every slide is a numbered plate on gridded stock.
+   =========================================== */
+.slide::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(to right,var(--grid) 1px,transparent 1px),
+    linear-gradient(to bottom,var(--grid) 1px,transparent 1px);
+  background-size:48px 48px}
+.slide::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(130% 115% at 18% 8%,transparent 46%,rgba(23,25,27,.07) 100%)}
+
+/* Ink plates carry the opening and closing statements. */
+.slide.ink{--slide-bg:var(--ink);--grid:rgba(233,229,220,.055);--rule:rgba(233,229,220,.2);
+  --ink-60:#B2ADA3;--ink-30:#7C8085;--paper-2:#202427;--paper-3:#2A2F33}
+.slide.ink::after{background:radial-gradient(130% 115% at 82% 10%,transparent 44%,rgba(0,0,0,.4) 100%)}
+.slide.ink .title,.slide.ink h2,.slide.ink h3{color:var(--paper)}
+.slide.ink .lede,.slide.ink .body{color:#C9C4BA}
+.slide.ink .lede b,.slide.ink .body b{color:var(--paper)}
+
+/* The hairline frame, with an index mark cut into the top-left corner. */
+.frame{position:absolute;inset:64px;border:1px solid var(--rule);pointer-events:none;z-index:2}
+.frame::before{content:"";position:absolute;left:-1px;top:-1px;width:196px;height:3px;background:var(--blue)}
+.frame::after{content:"";position:absolute;right:-1px;bottom:-1px;width:96px;height:1px;background:var(--rule)}
+.slide.ink .frame::before{background:var(--paper)}
+
+/* ===========================================
+   PLATE CHROME — running head, plate number, signature
+   =========================================== */
+.runner{position:absolute;left:128px;top:122px;z-index:3;
+  font:500 20px/1 var(--mono);letter-spacing:.26em;text-transform:uppercase;color:var(--blue)}
+.runner em{font-style:normal;color:var(--ink-30)}
+.runner.bad{color:var(--red)}
+.slide.ink .runner{color:var(--paper)}
+.plateno{position:absolute;right:122px;bottom:84px;z-index:3;
+  font:700 76px/1 var(--display);letter-spacing:.02em;color:var(--ink-30)}
+.sig{position:absolute;left:128px;bottom:98px;z-index:3;display:flex;gap:40px;align-items:baseline;
+  font:400 21px/1 var(--mono);color:var(--ink-30)}
+a{color:var(--blue);text-decoration:none;border-bottom:1px solid var(--blue-rule);
+  transition:color .2s ease,border-color .2s ease}
+a:hover{color:var(--red);border-color:var(--red-rule)}
+.slide.ink a{color:var(--blue-lift);border-bottom-color:rgba(143,166,240,.45)}
+.slide.ink a:hover{color:var(--red-lift);border-bottom-color:rgba(240,134,111,.5)}
+
+/* ===========================================
+   LAYOUT — the field, and the ways to divide it
+   =========================================== */
+.field{position:absolute;left:128px;right:128px;top:216px;bottom:188px;z-index:3}
+.middle{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;
+  align-items:flex-start;justify-content:center;padding:0 200px}
+.split{display:flex;align-items:stretch}
+.split>*{flex:1;min-width:0}
+.split>*+*{border-left:1px solid var(--rule);padding-left:56px;margin-left:56px}
+.stack{display:flex;flex-direction:column;gap:28px}
+
+/* ===========================================
+   TYPE SCALE
+   Condensed display for headings, Archivo for prose,
+   Azeret for every label, number and listing.
+   =========================================== */
+.tag{font:500 20px/1 var(--mono);letter-spacing:.24em;text-transform:uppercase;color:var(--blue)}
+.title{font:700 224px/.84 var(--display);text-transform:uppercase;letter-spacing:-.005em;color:var(--ink)}
+h2{font:700 124px/.92 var(--display);text-transform:uppercase;letter-spacing:.004em;color:var(--ink)}
+h2 em{font-style:normal;color:var(--blue)}
+h2 .x{color:var(--red)}
+h3{font:700 50px/1.04 var(--display);text-transform:uppercase;letter-spacing:.01em;color:var(--ink)}
+.sub{font:500 33px/1.42 var(--text);color:var(--ink-60);max-width:1420px}
+.lede{font:400 32px/1.52 var(--text);color:var(--ink-60);max-width:1240px}
+.lede b{font-weight:600;color:var(--ink)}
+.body{font:400 27px/1.56 var(--text);color:var(--ink-60)}
+.body b{font-weight:600;color:var(--ink)}
+.cap{font:400 20px/1.55 var(--mono);color:var(--ink-30)}
+.cap b{font-weight:500;color:var(--ink-60)}
+hr.hair{height:1px;border:0;background:var(--rule)}
+hr.hair.mark{height:3px;width:220px;background:var(--blue)}
+
+/* ===========================================
+   RUN — a typographic catalogue, separated by hairlines
+   =========================================== */
+.run{display:flex;flex-wrap:wrap;align-items:center;gap:18px 20px}
+.run span{font:700 42px/1 var(--display);text-transform:uppercase;letter-spacing:.01em;color:var(--ink)}
+.run span.bad{color:var(--red)}
+.run i{display:block;width:1px;height:38px;background:var(--rule)}
+
+/* ===========================================
+   LEDGER — marked findings: + works, - doesn't, ? caveat
+   =========================================== */
+.ledger{display:flex;flex-direction:column;gap:26px}
+.ledger li{list-style:none;display:flex;gap:24px;align-items:flex-start;
+  font:400 26px/1.5 var(--text);color:var(--ink-60)}
+.ledger li b{font-weight:600;color:var(--ink)}
+.ledger li::before{flex:none;width:34px;height:34px;margin-top:3px;
+  display:grid;place-items:center;border:1px solid currentColor;font:500 22px/1 var(--mono)}
+.ledger li.y::before{content:"+";color:var(--blue)}
+.ledger li.n::before{content:"\2212";color:var(--red)}
+.ledger li.q::before{content:"?";color:var(--ink-30)}
+.ledger.dense{gap:22px}
+.ledger.dense li{font-size:25px}
+/* Table variant: a fixed claim column, then its consequence. */
+.ledger.table{gap:0}
+.ledger.table li{align-items:baseline;font-size:26px;padding:20px 0;
+  border-bottom:1px solid var(--rule)}
+.ledger.table li:first-child{border-top:1px solid var(--rule)}
+.ledger.table li::before{margin-top:0;align-self:flex-start}
+.ledger.table .claim{flex:none;width:520px;font-weight:600;color:var(--ink)}
+.ledger.table .why{flex:1;min-width:0}
+.slide.ink .ledger li b{color:var(--paper)}
+.slide.ink .ledger li{color:#C9C4BA}
+
+/* A ledger set in its own washed panel. */
+.panel{padding:40px 44px;border:1px solid var(--rule);background:var(--paper-2)}
+.panel.r{border-color:var(--red-rule);background:var(--red-wash)}
+.panel.b{border-color:var(--blue-rule);background:var(--blue-wash)}
+
+/* ===========================================
+   LISTING — code and config, framed like a part drawing
+   =========================================== */
+.listing{border:1px solid var(--rule);background:var(--paper-2)}
+.listing .head{display:flex;align-items:center;gap:14px;padding:16px 24px;
+  border-bottom:1px solid var(--rule);background:var(--paper-3);
+  font:500 20px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60)}
+.listing .head b{font-weight:500;color:var(--blue)}
+.slide.ink .listing .head b{color:var(--blue-lift)}
+.listing pre{padding:26px;font:400 22px/1.66 var(--mono);color:var(--ink);
+  white-space:pre;overflow:hidden}
+.listing pre.sm{font-size:20px;line-height:1.62}
+pre .kw{color:var(--blue);font-weight:500}   /* keyword / table header */
+pre .st{color:var(--red)}                    /* string */
+pre .cm{color:var(--ink-30)}                 /* comment */
+pre .de{color:var(--ink-60)}                 /* de-emphasised */
+.slide.ink .listing pre{color:var(--paper)}
+.slide.ink pre .kw{color:var(--blue-lift)}
+.slide.ink pre .st{color:var(--red-lift)}
+
+/* ===========================================
+   FIGURE — inline SVG with a plate caption
+   =========================================== */
+.figure .num{margin-top:20px;font:500 19px/1 var(--mono);letter-spacing:.22em;
+  text-transform:uppercase;color:var(--ink-30)}
+svg .f-box{fill:none;stroke:var(--rule);stroke-width:1.5}
+svg .f-box.on{stroke:var(--blue-lift);stroke-width:2;fill:rgba(143,166,240,.1)}
+svg .f-box.off{stroke:var(--ink-30);stroke-dasharray:6 6}
+svg .f-txt{font:400 22px var(--mono);fill:var(--ink-60)}
+svg .f-txt.on{fill:var(--blue-lift)}
+svg .f-lab{font:500 17px var(--mono);fill:var(--ink-30);letter-spacing:.2em;text-transform:uppercase}
+svg .f-lab.on{fill:var(--blue-lift)}
+svg .f-wire{fill:none;stroke:var(--blue-lift);stroke-width:2;
+  stroke-dasharray:120;stroke-dashoffset:120}
+.slide.visible svg .f-wire{animation:ink-draw 1s var(--ease) .8s forwards}
+@keyframes ink-draw{to{stroke-dashoffset:0}}
+svg .f-head{fill:var(--blue-lift)}
+svg .f-cross{stroke:var(--red-lift);stroke-width:2}
+.slide.ink svg .f-txt{fill:#C9C4BA}
+.slide.ink svg .f-box{stroke:rgba(233,229,220,.3)}
+
+/* ===========================================
+   ENTRANCE — rises, wipes, drawn hairlines
+   Stagger with inline style="--t:.3s"
+   =========================================== */
+.rise{opacity:0;transform:translateY(20px);
+  transition:opacity .7s var(--ease),transform .7s var(--ease);transition-delay:var(--t,0s)}
+.slide.visible .rise{opacity:1;transform:none}
+.wipe{clip-path:inset(0 100% 0 0);transition:clip-path .95s var(--ease);transition-delay:var(--t,.1s)}
+.slide.visible .wipe{clip-path:inset(0 0 0 0)}
+.pop{opacity:0;transform:scale(.97);
+  transition:opacity .6s var(--ease),transform .6s var(--ease);transition-delay:var(--t,0s)}
+.slide.visible .pop{opacity:1;transform:none}
+.draw{transform:scaleX(0);transform-origin:left center;
+  transition:transform .8s var(--ease);transition-delay:var(--t,.2s)}
+.slide.visible .draw{transform:scaleX(1)}
+
+/* ===========================================
+   DECK UI — outside the 1920x1080 stage
+   =========================================== */
+.progress{position:fixed;left:0;bottom:0;height:3px;background:var(--blue);z-index:1200;
+  width:0;transition:width .4s var(--ease)}
+.hint{position:fixed;right:18px;bottom:16px;z-index:1200;
+  font:400 13px/1 var(--mono);color:rgba(23,25,27,.3)}
+.edit-hotzone{position:fixed;top:0;left:0;width:80px;height:80px;z-index:10000;cursor:pointer}
+.edit-toggle{position:fixed;top:18px;left:18px;z-index:10001;width:44px;height:44px;
+  border:1px solid var(--rule);background:var(--paper-2);color:var(--ink);font-size:18px;cursor:pointer;
+  opacity:0;pointer-events:none;transition:opacity .3s ease}
+.edit-toggle.show,.edit-toggle.active{opacity:1;pointer-events:auto}
+.edit-toggle.active{border-color:var(--blue);color:var(--blue)}
+body.editing [contenteditable]{outline:1px dashed var(--blue-rule);outline-offset:6px}
+body.editing .edit-banner{display:block}
+.edit-banner{display:none;position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:10001;
+  padding:10px 20px;background:var(--paper-2);border:1px solid var(--blue-rule);
+  font:400 14px/1 var(--mono);color:var(--blue)}
+</style>
+</head>
+<body>
+<div class="deck-viewport">
+<main class="deck-stage" id="deckStage">
+
+<!-- ===========================================
+     PLATE 01 — TITLE  (~30s)
+     Note: the premise is on this plate so it needs no slide of
+     its own. The drawing is the thesis: the conventional layout
+     spells the name twice and buries it under src/; the
+     essential layout puts it at the root beside (meta).
+     =========================================== -->
+<section class="slide ink active visible">
+  <div class="frame"></div>
+  <div class="runner">Lightning talk <em>&middot; October 2026</em></div>
+  <div style="position:absolute;left:128px;top:258px;width:900px;z-index:3">
+    <p class="tag rise" style="--t:.05s;color:var(--blue-lift)">Jason R. Coombs &middot; jaraco</p>
+    <h1 class="title rise" style="--t:.14s;margin-top:28px">Coherent<br>System</h1>
+    <hr class="hair mark draw" style="--t:.5s;margin-top:38px;background:var(--paper)">
+    <h3 class="rise" style="--t:.4s;margin-top:32px;font-size:62px">Triumphs <span style="color:var(--red-lift)">&amp;</span> Challenges</h3>
+    <p class="lede rise" style="--t:.56s;margin-top:30px;max-width:830px">Free the developer to focus on their code.
+      <b>Ancillary concerns managed in tooling.</b></p>
+  </div>
+  <div class="figure pop" style="--t:.4s;position:absolute;right:122px;top:274px;width:700px;z-index:3">
+    <svg viewBox="0 0 700 480" role="img" aria-label="The conventional layout buries the package under a src directory and a repeated name; the essential layout places the package at the repository root beside a meta directory">
+      <text class="f-lab" x="0" y="14">conventional</text>
+      <rect class="f-box off" x="0" y="34" width="612" height="168"/>
+      <text class="f-txt" x="28" y="74">worldpeacelib/</text>
+      <text class="f-txt" x="28" y="110">&#160;&#160;src/</text>
+      <text class="f-txt" x="28" y="146">&#160;&#160;&#160;&#160;worldpeacelib/</text>
+      <text class="f-txt" x="28" y="182">&#160;&#160;&#160;&#160;&#160;&#160;__init__.py</text>
+      <line class="f-cross" x1="474" y1="98" x2="562" y2="164"/>
+      <line class="f-cross" x1="562" y1="98" x2="474" y2="164"/>
+      <path class="f-wire" d="M306 214 L306 298"/>
+      <path class="f-head" d="M306 312 l-10 -16 h20 z"/>
+      <text class="f-lab on" x="0" y="346">essential layout</text>
+      <rect class="f-box on" x="0" y="366" width="612" height="110"/>
+      <text class="f-txt on" x="28" y="408">worldpeacelib/</text>
+      <text class="f-txt" x="28" y="446">&#160;&#160;__init__.py&#160;&#160;&#160;(meta)/</text>
+    </svg>
+    <div class="num">Fig. 01 &mdash; the shape of a repository</div>
+  </div>
+  <div class="sig"><a href="https://bit.ly/coherent-system">bit.ly/coherent-system</a></div>
+  <div class="plateno">01</div>
+</section>
+
+<!-- ===========================================
+     PLATE 02 — THE PROBLEM  (~60s)
+     Note: the drift list is the pitch. Read three or four aloud
+     — the point is the length of the list, not any one item.
+     Then the two structural problems, which are not about
+     effort but about shapes the ecosystem settled on.
+     =========================================== -->
+<section class="slide">
+  <div class="frame"></div>
+  <div class="runner bad">Maintainer problems</div>
+  <div class="field">
+    <h2 class="rise" style="--t:.08s">Repetition, <span class="x">forever</span></h2>
+    <p class="sub rise" style="--t:.22s;margin-top:28px">Repetitive maintenance of shared concerns that are
+      ancillary to the product &mdash; in every repository, again next year.</p>
+    <div class="run rise" style="--t:.36s;margin-top:40px">
+      <span>Test methodology</span><i></i>
+      <span>Minting releases</span><i></i>
+      <span>Metadata</span><i></i>
+      <span>Licensing</span><i></i>
+      <span>Python versions</span><i></i>
+      <span>Ecosystem drift</span>
+    </div>
+    <ul class="ledger table rise" style="--t:.6s;margin-top:56px">
+      <li class="n"><span class="claim">Checkouts aren&rsquo;t importable</span><span class="why">The repo&rsquo;s shape
+        isn&rsquo;t the installed shape, so a tooling step must intervene.</span></li>
+      <li class="n"><span class="claim">Backends can&rsquo;t have dependencies</span><span class="why">A PEP&nbsp;517
+        backend is installed before anything it would depend on.</span></li>
+    </ul>
+    <p class="cap rise" style="--t:.8s;margin-top:34px">Neither is a matter of effort. <b>Both are shapes the
+      ecosystem settled on.</b></p>
+  </div>
+  <div class="plateno">02</div>
+</section>
+
+<!-- ===========================================
+     PLATE 03 — TRIUMPH: THE WHOLE BOILERPLATE  (~50s)
+     Note: the measurable claim, and the setup for plate 06.
+     Three lines, one workflow hook, everything else discovered.
+     =========================================== -->
+<section class="slide">
+  <div class="frame"></div>
+  <div class="runner">Triumph <em>&middot; the whole boilerplate</em></div>
+  <div class="field">
+    <h2 class="rise" style="--t:.08s"><em>Three lines</em>, plus a hook</h2>
+    <div class="split" style="margin-top:44px">
+      <div>
+        <div class="listing rise" style="--t:.3s">
+          <div class="head"><b>pyproject.toml</b></div>
+          <pre class="sm"><span class="kw">[build-system]</span>
+requires = [<span class="st">'coherent.build'</span>]
+build-backend = <span class="st">'coherent.build'</span></pre>
+        </div>
+      </div>
+      <div>
+        <div class="listing rise" style="--t:.44s">
+          <div class="head"><b>.github/workflows/main.yml</b></div>
+          <pre class="sm"><span class="kw">name</span>: tests
+<span class="kw">on</span>: [push, pull_request]  <span class="cm"># trimmed</span>
+<span class="kw">jobs</span>:
+  main:
+    uses: <span class="st">coherent-oss/system/</span>
+      <span class="st">.github/workflows/main.yml@main</span></pre>
+        </div>
+      </div>
+    </div>
+    <hr class="hair draw" style="--t:.62s;margin-top:40px">
+    <p class="lede rise" style="--t:.74s;margin-top:26px;max-width:1540px">Name, version, author, description,
+      supported Pythons, licence text, dependencies &mdash; <b>all discovered.</b> In use for <b>encutils</b> and
+      <b>tempora</b>, with <b>coh</b> driving build, test and release.</p>
+  </div>
+  <div class="sig"><a href="https://pypi.org/project/coherent.cli">coherent.cli</a></div>
+  <div class="plateno">03</div>
+</section>
+
+<!-- ===========================================
+     PLATE 04 — TRIUMPH: THE ROOT IS THE PACKAGE  (~55s)
+     Note: this plate answers both structural problems from
+     plate 02. The essential layout makes the checkout
+     importable; compiling down to flit makes the bootstrap
+     problem stop mattering.
+     =========================================== -->
+<section class="slide">
+  <div class="frame"></div>
+  <div class="runner">Triumph <em>&middot; the essential layout</em></div>
+  <div class="field">
+    <h2 class="rise" style="--t:.08s">The root <em>is</em> the package</h2>
+    <div class="split" style="margin-top:44px">
+      <div>
+        <div class="listing rise" style="--t:.3s">
+          <div class="head"><b>tempora</b> &mdash; the whole repository</div>
+          <pre class="sm">tempora/
+  <span class="de">__init__.py</span>
+  <span class="de">schedule.py  timing.py  utc.py</span>
+  <span class="de">tests/</span>
+  <span class="kw">(meta)/</span>
+  <span class="cm">pyproject.toml</span></pre>
+        </div>
+      </div>
+      <div>
+        <div class="stack">
+          <p class="body rise" style="--t:.48s"><b>Clone it into site-packages and import it.</b> No
+            <span style="color:var(--red)">src/</span>, no name spelled twice, no transform between the
+            checkout and the runtime. <b>(meta)</b> keeps the ancillary concerns out of the root.</p>
+          <p class="body rise" style="--t:.6s">And the sdist <b>compiles down to flit</b> &mdash; every dynamic
+            decision resolved once, so what ships is a static, ordinary project.</p>
+          <p class="cap rise" style="--t:.72s">Nothing downstream installs this backend, which is how
+            <b>the bootstrap problem stops mattering.</b></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sig"><a href="https://github.com/coherent-oss/system/blob/main/essential-layout.md">essential-layout.md</a></div>
+  <div class="plateno">04</div>
+</section>
+
+<!-- ===========================================
+     PLATE 05 — TRIUMPH: INFERENCE  (~45s)
+     Note: fast and effective in practice. Say the caveat out
+     loud so nobody has to discover it later.
+     =========================================== -->
+<section class="slide ink">
+  <div class="frame"></div>
+  <div class="runner">Triumph <em>&middot; inference</em></div>
+  <div class="field">
+    <h2 class="rise" style="--t:.08s">Dependencies come from<br>the <em style="color:var(--blue-lift)">imports</em></h2>
+    <div class="split" style="margin-top:44px">
+      <div>
+        <div class="listing rise" style="--t:.3s">
+          <div class="head"><b>__init__.py</b> &mdash; the whole declaration</div>
+          <pre class="sm"><span class="kw">import</span> sys
+<span class="kw">import</span> requests
+
+print(requests.get(sys.argv[<span class="st">1</span>]).text)</pre>
+        </div>
+        <p class="cap rise" style="--t:.5s;margin-top:24px">There is no step two.</p>
+      </div>
+      <div>
+        <ul class="ledger dense rise" style="--t:.5s">
+          <li class="y">Static analysis of the source, plus a name database mapping imports to distributions</li>
+          <li class="y">Fast, and effective in practice</li>
+          <li class="y">Drop the last import and <b>the dependency goes with it</b></li>
+          <li class="q">Dynamic imports, subprocess calls and version constraints still need an explicit
+            <b>__requires__</b></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="sig"><a href="https://bit.ly/py-auto-deps">bit.ly/py-auto-deps</a></div>
+  <div class="plateno">05</div>
+</section>
+
+<!-- ===========================================
+     PLATE 06 — CHALLENGES  (~70s)
+     Note: the honest list. Items three and four are the price
+     of the two answers on plate 04: flit bought a static sdist
+     and gave up extension modules; the essential layout bought
+     composition and gave up every tool's idea of the root.
+     =========================================== -->
+<section class="slide">
+  <div class="frame"></div>
+  <div class="runner bad">Challenges</div>
+  <div class="field">
+    <h2 class="rise" style="--t:.08s">A system of <span class="x">one</span></h2>
+    <ul class="ledger table rise" style="--t:.26s;margin-top:44px">
+      <li class="n"><span class="claim">There&rsquo;s still boilerplate</span><span class="why">A workflow definition
+        per repository, and a <b>pyproject.toml</b> to find the backend.</span></li>
+      <li class="n"><span class="claim">Only coherent tooling reads (meta)</span><span class="why">Every other
+        tool looks in the root, or doesn&rsquo;t look.</span></li>
+      <li class="n"><span class="claim">flit can&rsquo;t build extension modules</span><span class="why">Compiling
+        down to flit caps the system at pure Python.</span></li>
+      <li class="n"><span class="claim">Tooling expects flat or src layout</span><span class="why">Neither shape
+        fits, so type checkers guess the import root wrong.</span></li>
+      <li class="n"><span class="claim">Docs need a service, not a template</span><span class="why">Sphinx and
+        Read the Docs each want boilerplate in every repository.</span></li>
+    </ul>
+    <p class="cap rise" style="--t:.5s;margin-top:28px">The last two are the price of the two answers on the
+      previous plate. <b>A system of one is still a system with an ecosystem around it.</b></p>
+  </div>
+  <div class="plateno">06</div>
+</section>
+
+<!-- ===========================================
+     PLATE 07 — CLOSE  (~20s)
+     =========================================== -->
+<section class="slide ink">
+  <div class="frame"></div>
+  <div class="runner">In summary</div>
+  <div class="middle">
+    <h2 class="rise" style="--t:.1s;font-size:140px">The root holds the code.<br><em style="color:var(--blue-lift)">The rest is tooling&rsquo;s problem.</em></h2>
+    <hr class="hair mark draw" style="--t:.5s;margin-top:46px;width:320px;background:var(--paper)">
+    <p class="lede rise" style="--t:.42s;margin-top:38px;max-width:1320px">That part is real and running. What&rsquo;s
+      left is the distance between <b>a system</b> and <b>an ecosystem that knows about it.</b></p>
+  </div>
+  <div class="sig">
+    <a href="https://bit.ly/coherent-system">bit.ly/coherent-system</a>
+    <a href="https://github.com/coherent-oss/system">coherent-oss/system</a>
+  </div>
+  <div class="plateno">07</div>
+</section>
+
+</main>
+</div>
+
+<div class="progress" id="progress"></div>
+<div class="hint">&larr; &rarr; to navigate &middot; E to edit</div>
+<div class="edit-hotzone"></div>
+<button class="edit-toggle" id="editToggle" title="Edit mode (E)" aria-label="Toggle edit mode">&#9998;</button>
+<div class="edit-banner">edit mode &middot; click any text &middot; Ctrl+S to save a copy &middot; E to exit</div>
+
+<script>
+/* ===========================================
+   DECK CONTROLLER
+   - one transform scales the whole 1920x1080 stage
+   - keyboard, wheel and touch navigation
+   - progress bar and #n deep links
+   =========================================== */
+class PlateDeck {
+    constructor() {
+        this.plates = [...document.querySelectorAll('.slide')];
+        this.stage = document.getElementById('deckStage');
+        this.bar = document.getElementById('progress');
+        this.at = 0;
+
+        this.fitStage();
+        this.bindNav();
+
+        const asked = parseInt(location.hash.slice(1), 10);
+        this.go(Number.isFinite(asked) ? asked - 1 : 0);
+    }
+
+    /* Scale and centre the stage; never reflow slide content. */
+    fitStage() {
+        const fit = () => {
+            const k = Math.min(innerWidth / 1920, innerHeight / 1080);
+            const x = (innerWidth - 1920 * k) / 2;
+            const y = (innerHeight - 1080 * k) / 2;
+            this.stage.style.transform = `translate(${x}px, ${y}px) scale(${k})`;
+        };
+        fit();
+        addEventListener('resize', fit);
+    }
+
+    bindNav() {
+        const forward = ['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'];
+        const back = ['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'];
+
+        addEventListener('keydown', (e) => {
+            if (e.target.isContentEditable) return;
+            if (forward.includes(e.key)) { e.preventDefault(); this.next(); }
+            else if (back.includes(e.key)) { e.preventDefault(); this.prev(); }
+            else if (e.key === 'Home') { e.preventDefault(); this.go(0); }
+            else if (e.key === 'End') { e.preventDefault(); this.go(this.plates.length - 1); }
+        });
+
+        /* Throttle the wheel so one gesture advances one plate. */
+        let settled = true;
+        addEventListener('wheel', (e) => {
+            if (!settled || Math.abs(e.deltaY) < 24) return;
+            settled = false;
+            e.deltaY > 0 ? this.next() : this.prev();
+            setTimeout(() => { settled = true; }, 520);
+        }, { passive: true });
+
+        let x0 = null, y0 = null;
+        addEventListener('touchstart', (e) => {
+            x0 = e.touches[0].clientX;
+            y0 = e.touches[0].clientY;
+        }, { passive: true });
+        addEventListener('touchend', (e) => {
+            if (x0 === null) return;
+            const dx = e.changedTouches[0].clientX - x0;
+            const dy = e.changedTouches[0].clientY - y0;
+            if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+                dx < 0 ? this.next() : this.prev();
+            }
+            x0 = y0 = null;
+        }, { passive: true });
+    }
+
+    next() { this.go(this.at + 1); }
+    prev() { this.go(this.at - 1); }
+
+    go(i) {
+        this.at = Math.max(0, Math.min(i, this.plates.length - 1));
+        this.plates.forEach((plate, n) => {
+            plate.classList.toggle('active', n === this.at);
+            plate.classList.toggle('visible', n === this.at);
+        });
+        this.bar.style.width = ((this.at + 1) / this.plates.length * 100) + '%';
+        history.replaceState(null, '', '#' + (this.at + 1));
+    }
+}
+
+/* ===========================================
+   INLINE EDITING
+   Hover the top-left corner or press E. Edits persist to
+   localStorage; Ctrl+S downloads a copy with edits baked in.
+   =========================================== */
+class InlineEditor {
+    constructor() {
+        this.on = false;
+        this.selector = '.title, h2, h3, .sub, .lede, .body, .cap, .tag, ' +
+                        '.run span, .ledger li, .listing .head, .plateno';
+        this.restore();
+        this.bindUI();
+    }
+
+    get nodes() { return [...document.querySelectorAll(this.selector)]; }
+
+    toggle() {
+        this.on = !this.on;
+        document.body.classList.toggle('editing', this.on);
+        document.getElementById('editToggle').classList.toggle('active', this.on);
+        this.nodes.forEach((node, i) => {
+            node.contentEditable = this.on ? 'true' : 'false';
+            if (this.on) {
+                node.dataset.editIndex = i;
+                node.addEventListener('blur', this.save, { once: true });
+            }
+        });
+    }
+
+    save = () => {
+        const edits = {};
+        this.nodes.forEach((node, i) => { edits[i] = node.innerHTML; });
+        try { localStorage.setItem('coherent-system-deck', JSON.stringify(edits)); } catch (e) {}
+    };
+
+    restore() {
+        let edits;
+        try { edits = JSON.parse(localStorage.getItem('coherent-system-deck') || 'null'); }
+        catch (e) { return; }
+        if (!edits) return;
+        this.nodes.forEach((node, i) => { if (edits[i] !== undefined) node.innerHTML = edits[i]; });
+    }
+
+    /* Download the current DOM as a standalone copy. */
+    export() {
+        const copy = document.documentElement.cloneNode(true);
+        copy.querySelectorAll('[contenteditable]').forEach(n => n.removeAttribute('contenteditable'));
+        copy.querySelectorAll('[data-edit-index]').forEach(n => n.removeAttribute('data-edit-index'));
+        const blob = new Blob(['<!DOCTYPE html>\n' + copy.outerHTML], { type: 'text/html' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'coherent-system-edited.html';
+        link.click();
+        URL.revokeObjectURL(link.href);
+    }
+
+    bindUI() {
+        const button = document.getElementById('editToggle');
+        const hotzone = document.querySelector('.edit-hotzone');
+        let hideTimer = null;
+
+        /* Hover affordance with a grace period so the button stays clickable. */
+        const show = () => { clearTimeout(hideTimer); button.classList.add('show'); };
+        const hide = () => {
+            hideTimer = setTimeout(() => {
+                if (!this.on) button.classList.remove('show');
+            }, 400);
+        };
+        hotzone.addEventListener('mouseenter', show);
+        hotzone.addEventListener('mouseleave', hide);
+        button.addEventListener('mouseenter', show);
+        button.addEventListener('mouseleave', hide);
+        hotzone.addEventListener('click', () => this.toggle());
+        button.addEventListener('click', () => this.toggle());
+
+        addEventListener('keydown', (e) => {
+            if ((e.key === 'e' || e.key === 'E') && !e.target.isContentEditable) this.toggle();
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault(); this.save(); this.export();
+            }
+        });
+    }
+}
+
+const deck = new PlateDeck();
+const editor = new InlineEditor();
+</script>
+</body>
+</html>
