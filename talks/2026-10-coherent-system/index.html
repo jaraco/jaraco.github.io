@@ -420,16 +420,20 @@ build-backend = <span class="st">'coherent.build'</span></pre>
 </section>
 
 <!-- ===========================================
-     PLATE 05 — TRIUMPH: INFERENCE  (~45s)
-     Note: fast and effective in practice. Say the caveat out
-     loud so nobody has to discover it later.
+     PLATE 05 — TRIUMPH: DERIVED, NOT DECLARED  (~55s)
+     Note: two metadata fields nobody writes. Dependencies come
+     from the imports; the Python floor comes from whichever
+     branches CPython is still maintaining, so a sunset version
+     raises it without anyone touching the project.
+     BEFORE PRESENTING: refresh the branch numbers below to
+     whatever CPython is actually maintaining on the day.
      =========================================== -->
 <section class="slide ink">
   <div class="frame"></div>
   <div class="runner">Triumph <em>&middot; inference</em></div>
   <div class="field">
-    <h2 class="rise" style="--t:.08s">Dependencies come from<br>the <em style="color:var(--blue-lift)">imports</em></h2>
-    <div class="split" style="margin-top:44px">
+    <h2 class="rise" style="--t:.08s">Derived, not <em style="color:var(--blue-lift)">declared</em></h2>
+    <div class="split" style="margin-top:40px">
       <div>
         <div class="listing rise" style="--t:.3s">
           <div class="head"><b>__init__.py</b> &mdash; the whole declaration</div>
@@ -438,18 +442,28 @@ build-backend = <span class="st">'coherent.build'</span></pre>
 
 print(requests.get(sys.argv[<span class="st">1</span>]).text)</pre>
         </div>
-        <p class="cap rise" style="--t:.5s;margin-top:24px">There is no step two.</p>
+        <p class="cap rise" style="--t:.5s;margin-top:22px"><b>Dependencies, from the imports.</b>
+          There is no step two.</p>
       </div>
       <div>
-        <ul class="ledger dense rise" style="--t:.5s">
-          <li class="y">Static analysis of the source, plus a name database mapping imports to distributions</li>
-          <li class="y">Fast, and effective in practice</li>
-          <li class="y">Drop the last import and <b>the dependency goes with it</b></li>
-          <li class="q">Dynamic imports, subprocess calls and version constraints still need an explicit
-            <b>__requires__</b></li>
-        </ul>
+        <div class="listing rise" style="--t:.44s">
+          <div class="head"><b>python/cpython</b> &mdash; nobody wrote this</div>
+          <pre class="sm"><span class="cm">branches still maintained:</span>
+  3.11  3.12  3.13  3.14  main
+  <span class="st">^ the oldest one wins</span>
+
+<span class="kw">Requires-Python</span>: &gt;= 3.11</pre>
+        </div>
+        <p class="cap rise" style="--t:.6s;margin-top:22px"><b>Supported Pythons, from CPython itself.</b>
+          A version sunsets, the branch goes, the floor rises.</p>
       </div>
     </div>
+    <ul class="ledger dense rise" style="--t:.74s;margin-top:34px">
+      <li class="y">A name database maps imports to distributions &mdash; drop the last import and
+        <b>the dependency goes with it</b></li>
+      <li class="q">Dynamic imports, subprocess calls and version constraints still need an explicit
+        <b>__requires__</b></li>
+    </ul>
   </div>
   <div class="sig"><a href="https://bit.ly/py-auto-deps">bit.ly/py-auto-deps</a></div>
   <div class="plateno">05</div>
